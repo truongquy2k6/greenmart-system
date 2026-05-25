@@ -372,6 +372,22 @@ class GreenMartViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    fun updateCustomerProfile(hoTen: String, soDienThoai: String, email: String, diaChi: String) {
+        viewModelScope.launch {
+            val current = repository.getKhachHang(maKH)
+            if (current != null) {
+                val updated = current.copy(
+                    HoTen = hoTen.trim(),
+                    SoDienThoai = soDienThoai.trim(),
+                    Email = email.trim(),
+                    DiaChi = diaChi.trim()
+                )
+                repository.updateCustomer(updated)
+                triggerToast("Cập nhật thông tin thành công!")
+            }
+        }
+    }
+
     fun logout() {
         _currentMaKH.value = ""
         clearCart()
