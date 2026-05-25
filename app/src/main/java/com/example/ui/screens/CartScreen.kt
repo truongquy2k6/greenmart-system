@@ -61,6 +61,7 @@ fun CartScreen(
     var cardName by remember { mutableStateOf("") }
     var cardExpiry by remember { mutableStateOf("") }
     var storeBankConfig by remember { mutableStateOf<CauHinh?>(null) }
+    val payDesc = remember(showCheckoutDialog) { "GMPAY" + (System.currentTimeMillis() % 100000) }
 
     // Fetch config on selected checkout store change
     LaunchedEffect(selectedCheckoutStore) {
@@ -578,49 +579,27 @@ fun CartScreen(
                                         Text("👤 Tên tài khoản: ${storeBankConfig?.AccountName ?: "GREENMART CO."}", fontSize = 12.sp, color = Color.Gray)
                                         Text("💳 Số TK: ${storeBankConfig?.AccountNo ?: "1012345678"}", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, color = Color.DarkGray)
                                         Text("💵 Số tiền: ${String.format("%,.0f", summary.total)} VND", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = ForestGreen)
-                                        Text("📝 Nội dung: GMPAY KH001", fontSize = 12.sp, color = Color.Gray, fontFamily = FontFamily.Monospace)
+                                        Text("📝 Nội dung: $payDesc", fontSize = 12.sp, color = Color.Gray, fontFamily = FontFamily.Monospace)
                                     }
                                 }
 
                                 Spacer(modifier = Modifier.height(12.dp))
 
-                                // Draw QR Code Simulator Graphic
+                                // Real Live Dynamic VietQR Code Image!
                                 Box(
                                     modifier = Modifier
-                                        .size(140.dp)
+                                        .size(160.dp)
                                         .align(Alignment.CenterHorizontally)
                                         .background(Color.White)
                                         .border(1.dp, Color.LightGray)
                                         .padding(10.dp)
                                 ) {
-                                    Canvas(modifier = Modifier.fillMaxSize()) {
-                                        // Draw a simulated beautiful green QR code pattern
-                                        val qrSize = size.width
-                                        val block = qrSize / 8f
-                                        
-                                        // Outer boundaries
-                                        drawRect(color = Color.Black, size = Size(qrSize, qrSize), style = Stroke(width = 4f))
-                                        
-                                        // 3 positional squares typical of QR codes
-                                        drawRect(color = Color.Black, topLeft = Offset(0f, 0f), size = Size(block * 2.5f, block * 2.5f))
-                                        drawRect(color = Color.White, topLeft = Offset(block * 0.4f, block * 0.4f), size = Size(block * 1.7f, block * 1.7f))
-                                        drawRect(color = Color.Black, topLeft = Offset(block * 0.8f, block * 0.8f), size = Size(block * 0.9f, block * 0.9f))
-
-                                        drawRect(color = Color.Black, topLeft = Offset(qrSize - block * 2.5f, 0f), size = Size(block * 2.5f, block * 2.5f))
-                                        drawRect(color = Color.White, topLeft = Offset(qrSize - block * 2.1f, block * 0.4f), size = Size(block * 1.7f, block * 1.7f))
-                                        drawRect(color = Color.Black, topLeft = Offset(qrSize - block * 1.7f, block * 0.8f), size = Size(block * 0.9f, block * 0.9f))
-
-                                        drawRect(color = Color.Black, topLeft = Offset(0f, qrSize - block * 2.5f), size = Size(block * 2.5f, block * 2.5f))
-                                        drawRect(color = Color.White, topLeft = Offset(block * 0.4f, qrSize - block * 2.1f), size = Size(block * 1.7f, block * 1.7f))
-                                        drawRect(color = Color.Black, topLeft = Offset(block * 0.8f, qrSize - block * 1.7f), size = Size(block * 0.9f, block * 0.9f))
-
-                                        // Random organic qr blocks inside
-                                        drawRect(color = ForestGreen, topLeft = Offset(block * 4.4f, block * 4.4f), size = Size(block * 1.5f, block * 1.5f))
-                                        drawRect(color = ForestGreen, topLeft = Offset(block * 3.1f, block * 1.2f), size = Size(block * 0.8f, block * 2.1f))
-                                        drawRect(color = ForestGreen, topLeft = Offset(block * 1.2f, block * 3.1f), size = Size(block * 2.1f, block * 0.8f))
-                                        drawRect(color = ForestGreen, topLeft = Offset(block * 5.2f, block * 2.2f), size = Size(block * 0.9f, block * 1.4f))
-                                        drawRect(color = Color.Black, topLeft = Offset(block * 2.2f, block * 5.2f), size = Size(block * 1.4f, block * 0.9f))
-                                    }
+                                    val qrUrl = "https://img.vietqr.io/image/${storeBankConfig?.BankId ?: "VCB"}-${storeBankConfig?.AccountNo ?: "1012345678"}-compact2.png?amount=${summary.total.toInt()}&addInfo=$payDesc&accountName=${storeBankConfig?.AccountName ?: "GREENMART"}"
+                                    GreenMartImage(
+                                        url = qrUrl,
+                                        contentDescription = "VietQR Code",
+                                        modifier = Modifier.fillMaxSize()
+                                    )
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(

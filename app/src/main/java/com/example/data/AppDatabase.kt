@@ -61,7 +61,7 @@ abstract class AppDatabase : RoomDatabase() {
                     kotlinx.coroutines.delay(100)
                 }
                 database?.let {
-                    populateDatabase(it.greenMartDao())
+                    // populateDatabase(it.greenMartDao()) // Disable local Room database mock seeding
                 }
             }
         }

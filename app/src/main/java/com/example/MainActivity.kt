@@ -187,17 +187,17 @@ fun MainAppScaffold() {
                     )
                 )
 
-                // Tab 5: Family loyalty hub
+                // Tab 5: Account & loyalty hub
                 NavigationBarItem(
                     selected = selectedTabIndex == 4,
                     onClick = { selectedTabIndex = 4 },
                     icon = {
                         Icon(
-                            imageVector = if (selectedTabIndex == 4) Icons.Default.CardGiftcard else Icons.Outlined.CardGiftcard,
-                            contentDescription = "Chăm sóc"
+                            imageVector = if (selectedTabIndex == 4) Icons.Default.Person else Icons.Outlined.Person,
+                            contentDescription = "Tài khoản"
                         )
                     },
-                    label = { Text("Chăm Sóc", fontSize = 11.sp, fontWeight = if (selectedTabIndex == 4) androidx.compose.ui.text.font.FontWeight.Bold else androidx.compose.ui.text.font.FontWeight.Normal) },
+                    label = { Text("Tài Khoản", fontSize = 11.sp, fontWeight = if (selectedTabIndex == 4) androidx.compose.ui.text.font.FontWeight.Bold else androidx.compose.ui.text.font.FontWeight.Normal) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = ForestGreen,
                         selectedTextColor = ForestGreen,

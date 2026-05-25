@@ -14,7 +14,7 @@ class GreenMartViewModel(application: Application) : AndroidViewModel(applicatio
     private val database = AppDatabase.getDatabase(application, viewModelScope)
     private val repository = GreenMartRepository(database.greenMartDao())
 
-    private val _currentMaKH = MutableStateFlow<String>("KH001")
+    private val _currentMaKH = MutableStateFlow<String>("")
     val currentMaKH: StateFlow<String> = _currentMaKH.asStateFlow()
     val maKH: String get() = _currentMaKH.value
 

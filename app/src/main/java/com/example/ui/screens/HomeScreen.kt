@@ -444,7 +444,7 @@ fun HomeScreen(
         // 5. Featured product highlights
         SectionHeader(
             title = "Hôm nay mua gì tại GreenMart?",
-            subtitle = "Thực sạch VietGAP luôn tươi rói nhập kho mỗi sớm mai"
+            subtitle = "Nông sản hữu cơ tươi ngon nhập kho mỗi sớm mai"
         )
         
         Spacer(modifier = Modifier.height(8.dp))
