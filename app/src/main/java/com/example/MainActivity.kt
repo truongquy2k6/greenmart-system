@@ -32,6 +32,14 @@ import com.example.viewmodel.GreenMartViewModel
 import com.example.viewmodel.UiEvent
 import kotlinx.coroutines.flow.collectLatest
 
+data class AppNotification(
+    val id: String,
+    val title: String,
+    val content: String,
+    val time: String,
+    val isRead: Boolean = false
+)
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,6 +93,16 @@ fun MainAppScaffold() {
     // State for Notifications Dialog
     var showNotificationsDialog by remember { mutableStateOf(false) }
 
+    var notifications by remember {
+        mutableStateOf(
+            listOf(
+                AppNotification("1", "Rau sạch VietGAP mới về hôm nay! 🥬", "Xà lách mỡ và cà chua bi hữu cơ tươi mới nhập kho lúc 5h sáng, giảm giá 10% đặc biệt cho thành viên.", "Vừa xong"),
+                AppNotification("2", "Bạn nhận được Voucher 50.000đ 🎫", "Mã KM02 giảm ngay 50k cho hóa đơn từ 300k vừa được kích hoạt trong ví của bạn. Mua sắm ngay!", "1 giờ trước"),
+                AppNotification("3", "Tính năng Trợ Lý Sức Khỏe AI đã hoạt động 🤖", "Hỏi AI công thức dinh dưỡng nấu canh chua, làm salad organic và tự soạn giỏ hàng tức thì!", "Hôm qua")
+            )
+        )
+    }
+
     // Shared VM Single Live Event listener triggers
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collectLatest { event ->
@@ -110,59 +128,23 @@ fun MainAppScaffold() {
                 modifier = Modifier
                     .background(Brush.verticalGradient(colors = listOf(ForestGreen, EmeraldGreen)))
                     .statusBarsPadding()
-                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                    .padding(horizontal = 16.dp, vertical = 10.dp)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier.fillMaxWidth().height(46.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { viewModel.updateSearchQuery(it) },
-                        placeholder = {
-                            Text(
-                                "Tìm rau quả, thịt cá sạch VietGAP...",
-                                fontSize = 12.sp,
-                                color = Color.Gray
-                            )
-                        },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = "Tìm kiếm",
-                                tint = ForestGreen
-                            )
-                        },
-                        trailingIcon = {
-                            if (searchQuery.isNotEmpty()) {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = "Xóa",
-                                    tint = Color.Gray,
-                                    modifier = Modifier.clickable { viewModel.updateSearchQuery("") }
-                                )
-                            }
-                        },
-                        singleLine = true,
-                        shape = RoundedCornerShape(24.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            focusedBorderColor = Color.Transparent,
-                            unfocusedBorderColor = Color.Transparent,
-                            focusedTextColor = Color.DarkGray,
-                            unfocusedTextColor = Color.DarkGray
-                        ),
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(46.dp)
+                    Text(
+                        text = "GreenMart 🥦",
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
                     )
-
-                    Spacer(modifier = Modifier.width(8.dp))
 
                     Box(
                         modifier = Modifier
-                            .size(46.dp)
+                            .size(40.dp)
                             .background(Color.White.copy(alpha = 0.15f), shape = CircleShape)
                             .clickable { showNotificationsDialog = true },
                         contentAlignment = Alignment.Center
@@ -171,21 +153,24 @@ fun MainAppScaffold() {
                             imageVector = Icons.Default.Notifications,
                             contentDescription = "Thông báo",
                             tint = Color.White,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(22.dp)
                         )
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(top = 4.dp, end = 4.dp)
-                                .background(Color.Red, CircleShape)
-                                .padding(horizontal = 4.dp, vertical = 1.dp)
-                        ) {
-                            Text(
-                                text = "3",
-                                color = Color.White,
-                                fontSize = 8.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                        val unreadCount = notifications.count { !it.isRead }
+                        if (unreadCount > 0) {
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(top = 2.dp, end = 2.dp)
+                                    .background(Color.Red, CircleShape)
+                                    .padding(horizontal = 5.dp, vertical = 1.dp)
+                            ) {
+                                Text(
+                                    text = unreadCount.toString(),
+                                    color = Color.White,
+                                    fontSize = 8.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
                     }
                 }
@@ -467,43 +452,93 @@ fun MainAppScaffold() {
         AlertDialog(
             onDismissRequest = { showNotificationsDialog = false },
             title = {
-                Text(
-                    text = "Thông Báo Khuyến Mãi & Đơn Hàng",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = DeepText,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Thông Báo 🔔",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = DeepText
+                    )
+                    Text(
+                        text = "Đọc tất cả",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = ForestGreen,
+                        modifier = Modifier
+                            .clickable {
+                                notifications = notifications.map { it.copy(isRead = true) }
+                            }
+                            .padding(4.dp)
+                    )
+                }
             },
             text = {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    val notificationsList = listOf(
-                        Triple("Rau sạch VietGAP mới về hôm nay! 🥬", "Xà lách mỡ và cà chua bi hữu cơ tươi mới nhập kho lúc 5h sáng, giảm giá 10% đặc biệt cho thành viên.", "Vừa xong"),
-                        Triple("Bạn nhận được Voucher 50.000đ 🎫", "Mã KM02 giảm ngay 50k cho hóa đơn từ 300k vừa được kích hoạt trong ví của bạn. Mua sắm ngay!", "1 giờ trước"),
-                        Triple("Tính năng Trợ Lý Sức Khỏe AI đã hoạt động 🤖", "Hỏi AI công thức dinh dưỡng nấu canh chua, làm salad organic và tự soạn giỏ hàng tức thì!", "Hôm qua")
-                    )
-
-                    notificationsList.forEach { (title, content, time) ->
-                        Card(
-                            shape = RoundedCornerShape(8.dp),
-                            colors = CardDefaults.cardColors(containerColor = SoftCream),
-                            modifier = Modifier.fillMaxWidth()
+                    if (notifications.isEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 24.dp),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Column(modifier = Modifier.padding(12.dp)) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(text = title, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = DeepText)
-                                    Text(text = time, fontSize = 9.sp, color = Color.Gray)
+                            Text("Không có thông báo nào", color = Color.Gray, fontSize = 13.sp)
+                        }
+                    } else {
+                        notifications.forEach { item ->
+                            Card(
+                                shape = RoundedCornerShape(10.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = if (item.isRead) Color.White else SoftCream
+                                ),
+                                border = if (item.isRead) androidx.compose.foundation.BorderStroke(0.5.dp, Color.LightGray) else androidx.compose.foundation.BorderStroke(1.dp, ForestGreen.copy(alpha = 0.2f)),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        notifications = notifications.map { 
+                                            if (it.id == item.id) it.copy(isRead = true) else it
+                                        }
+                                    },
+                                elevation = CardDefaults.cardElevation(defaultElevation = if (item.isRead) 0.dp else 1.dp)
+                            ) {
+                                Column(modifier = Modifier.padding(12.dp)) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            if (!item.isRead) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .size(6.dp)
+                                                        .background(ForestGreen, CircleShape)
+                                                )
+                                                Spacer(modifier = Modifier.width(6.dp))
+                                            }
+                                            Text(
+                                                text = item.title,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 12.sp,
+                                                color = DeepText
+                                            )
+                                        }
+                                        Text(text = item.time, fontSize = 9.sp, color = Color.Gray)
+                                    }
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = item.content,
+                                        fontSize = 11.sp,
+                                        color = if (item.isRead) Color.Gray else Color.DarkGray,
+                                        lineHeight = 16.sp
+                                    )
                                 }
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(text = content, fontSize = 11.sp, color = Color.DarkGray, lineHeight = 16.sp)
                             }
                         }
                     }
@@ -513,7 +548,8 @@ fun MainAppScaffold() {
                 Button(
                     onClick = { showNotificationsDialog = false },
                     colors = ButtonDefaults.buttonColors(containerColor = ForestGreen),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
                 ) {
                     Text("ĐÓNG THÔNG BÁO", color = Color.White, fontWeight = FontWeight.Bold)
                 }

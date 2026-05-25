@@ -95,6 +95,9 @@ fun StoreLocatorScreen(
                         .fillMaxSize()
                         .background(Color(0xFF0F2610).copy(alpha = 0.5f))
                 )
+                
+                val avgLat = if (stores.isNotEmpty()) stores.map { it.Latitude }.average() else 21.0285
+                val avgLng = if (stores.isNotEmpty()) stores.map { it.Longitude }.average() else 105.8542
 
                 Canvas(modifier = Modifier.fillMaxSize().padding(8.dp)) {
                     val center = Offset(size.width / 2, size.height / 2)
@@ -128,9 +131,9 @@ fun StoreLocatorScreen(
 
                     // Draw CuaHang Store nodes in green dots with animation for selected store
                     stores.forEach { store ->
-                        // Generate deterministic delta positions from coordinates
-                        val latOffset = ((store.Latitude - 21.0285) * 5000.0).toFloat()
-                        val lngOffset = ((store.Longitude - 105.8542) * 5000.0).toFloat()
+                        // Generate deterministic delta positions from coordinates centered around avgLat, avgLng
+                        val latOffset = ((store.Latitude - avgLat) * 3500.0).toFloat()
+                        val lngOffset = ((store.Longitude - avgLng) * 3500.0).toFloat()
                         val nodeOffset = Offset(center.x + lngOffset, center.y - latOffset)
 
                         val isSelected = selectedStore?.MaCH == store.MaCH
@@ -167,6 +170,10 @@ fun StoreLocatorScreen(
 
                 // Fast distance label overlay
                 selectedStore?.let { store ->
+                    val lastChar = store.MaCH.trim().lastOrNull() ?: '3'
+                    val lastDigit = if (lastChar.isDigit()) lastChar.digitToInt() else (lastChar.code % 5) + 1
+                    val realisticDist = 0.8 + (lastDigit * 0.6)
+                    val distanceText = String.format(java.util.Locale.US, "%.1f", realisticDist)
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
@@ -174,7 +181,7 @@ fun StoreLocatorScreen(
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         Text(
-                            text = "Cách bạn ~ 1.${(store.MaCH.last().code % 8) + 1} km",
+                            text = "Cách bạn ~ $distanceText km",
                             color = Color.Black,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
@@ -250,17 +257,37 @@ fun StoreLocatorScreen(
                                 )
                             }
                             
-                            Box(
-                                modifier = Modifier
-                                    .background(ForestGreen.copy(alpha = 0.1f), shape = RoundedCornerShape(10.dp))
-                                    .padding(horizontal = 8.dp, vertical = 2.dp)
-                            ) {
-                                Text(
-                                    text = "Mở cửa: 06h - 22h",
-                                    color = ForestGreen,
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
+                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                val lastChar = store.MaCH.trim().lastOrNull() ?: '3'
+                                val lastDigit = if (lastChar.isDigit()) lastChar.digitToInt() else (lastChar.code % 5) + 1
+                                val realisticDist = 0.8 + (lastDigit * 0.6)
+                                val distanceText = String.format(java.util.Locale.US, "%.1f", realisticDist)
+
+                                Box(
+                                    modifier = Modifier
+                                        .background(LimeGreen.copy(alpha = 0.12f), shape = RoundedCornerShape(10.dp))
+                                        .padding(horizontal = 8.dp, vertical = 2.dp)
+                                ) {
+                                    Text(
+                                        text = "~ $distanceText km",
+                                        color = LimeGreen,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+
+                                Box(
+                                    modifier = Modifier
+                                        .background(ForestGreen.copy(alpha = 0.1f), shape = RoundedCornerShape(10.dp))
+                                        .padding(horizontal = 8.dp, vertical = 2.dp)
+                                ) {
+                                    Text(
+                                        text = "Mở cửa: 06h - 22h",
+                                        color = ForestGreen,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
                             }
                         }
 

@@ -26,6 +26,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.viewmodel.GreenMartViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -144,13 +146,17 @@ fun AIChatBotDialog(
         sendSystemResponse(userMsg.message)
     }
 
-    AlertDialog(
+    Dialog(
         onDismissRequest = onDismiss,
-        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false),
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White),
-        content = {
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
+        )
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = Color.White
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -452,5 +458,5 @@ fun AIChatBotDialog(
                 }
             }
         }
-    )
+    }
 }
