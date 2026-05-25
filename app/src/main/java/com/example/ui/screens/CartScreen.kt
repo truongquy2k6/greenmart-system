@@ -53,6 +53,7 @@ fun CartScreen(
     val coroutineScope = rememberCoroutineScope()
     var showVoucherBottomSheet by remember { mutableStateOf(false) }
     var showCheckoutDialog by remember { mutableStateOf(false) }
+    var storeSelectorExpanded by remember { mutableStateOf(false) }
 
     // Checkout configurations
     var selectedPaymentMethod by remember { mutableStateOf("Chuyển khoản QR") } // "Chuyển khoản QR" or "Thẻ ATM/Visa" or "Ví MoMo"
@@ -235,24 +236,107 @@ fun CartScreen(
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                                 
-                                stores.forEach { shop ->
-                                    val checked = selectedCheckoutStore?.MaCH == shop.MaCH
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable { viewModel.setCheckoutStore(shop) }
-                                            .padding(vertical = 6.dp),
-                                        verticalAlignment = Alignment.CenterVertically
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp)
+                                ) {
+                                    OutlinedButton(
+                                        onClick = { storeSelectorExpanded = true },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        shape = RoundedCornerShape(8.dp),
+                                        border = BorderStroke(1.dp, ForestGreen.copy(alpha = 0.5f)),
+                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = DeepText),
+                                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp)
                                     ) {
-                                        RadioButton(
-                                            selected = checked,
-                                            onClick = { viewModel.setCheckoutStore(shop) },
-                                            colors = RadioButtonDefaults.colors(selectedColor = ForestGreen)
-                                        )
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Column {
-                                            Text(shop.TenCH, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.DarkGray)
-                                            Text(shop.DiaChi, fontSize = 11.sp, color = Color.Gray, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                modifier = Modifier.weight(1f)
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Storefront,
+                                                    contentDescription = null,
+                                                    tint = ForestGreen,
+                                                    modifier = Modifier.size(20.dp)
+                                                )
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                                Column(
+                                                    horizontalAlignment = Alignment.Start
+                                                ) {
+                                                    if (selectedCheckoutStore != null) {
+                                                        Text(
+                                                            text = selectedCheckoutStore.TenCH, 
+                                                            fontSize = 13.sp, 
+                                                            fontWeight = FontWeight.Bold,
+                                                            color = DeepText
+                                                        )
+                                                        Text(
+                                                            text = selectedCheckoutStore.DiaChi, 
+                                                            fontSize = 11.sp, 
+                                                            color = Color.Gray, 
+                                                            maxLines = 1, 
+                                                            overflow = TextOverflow.Ellipsis
+                                                        )
+                                                    } else {
+                                                        Text(
+                                                            text = "Bấm để chọn cửa hàng...", 
+                                                            fontSize = 13.sp, 
+                                                            color = Color.Gray
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                            Icon(
+                                                imageVector = if (storeSelectorExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                                contentDescription = null,
+                                                tint = Color.Gray,
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        }
+                                    }
+
+                                    DropdownMenu(
+                                        expanded = storeSelectorExpanded,
+                                        onDismissRequest = { storeSelectorExpanded = false },
+                                        modifier = Modifier
+                                            .fillMaxWidth(0.85f)
+                                            .background(Color.White)
+                                    ) {
+                                        stores.forEach { shop ->
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Column {
+                                                        Text(
+                                                            text = shop.TenCH, 
+                                                            fontSize = 13.sp, 
+                                                            fontWeight = FontWeight.Bold, 
+                                                            color = DeepText
+                                                        )
+                                                        Text(
+                                                            text = shop.DiaChi, 
+                                                            fontSize = 11.sp, 
+                                                            color = Color.Gray
+                                                        )
+                                                    }
+                                                },
+                                                onClick = {
+                                                    viewModel.setCheckoutStore(shop)
+                                                    storeSelectorExpanded = false
+                                                },
+                                                leadingIcon = {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Store,
+                                                        contentDescription = null,
+                                                        tint = if (selectedCheckoutStore?.MaCH == shop.MaCH) ForestGreen else Color.Gray,
+                                                        modifier = Modifier.size(20.dp)
+                                                    )
+                                                }
+                                            )
                                         }
                                     }
                                 }

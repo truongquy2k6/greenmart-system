@@ -216,6 +216,12 @@ class GreenMartViewModel(application: Application) : AndroidViewModel(applicatio
 
     // --- Claim / Buy Vouchers ---
     fun claimPublicVoucher(voucher: KhuyenMai) {
+        if (maKH.isBlank()) {
+            viewModelScope.launch {
+                _uiEvent.emit(UiEvent.ShowToast("Vui lòng đăng nhập để thực hiện lưu mã giảm giá!"))
+            }
+            return
+        }
         viewModelScope.launch {
             val success = repository.claimVoucher(maKH, voucher.MaKM)
             if (success) {
@@ -228,6 +234,12 @@ class GreenMartViewModel(application: Application) : AndroidViewModel(applicatio
 
     // --- Point Exchange (Redemption) ---
     fun redeemGift(gift: QuaDongTichDiem) {
+        if (maKH.isBlank()) {
+            viewModelScope.launch {
+                _uiEvent.emit(UiEvent.ShowToast("Vui lòng đăng nhập để thực hiện đổi quà tích điểm!"))
+            }
+            return
+        }
         viewModelScope.launch {
             val (success, message) = repository.redeemPointForGift(maKH, gift)
             if (success) {
