@@ -30,13 +30,13 @@ import com.example.viewmodel.GreenMartViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-// Color constants matching the GreenMart premium aesthetic
-private val ForestGreen = Color(0xFF2E7D32)
-private val EmeraldGreen = Color(0xFF4CAF50)
-private val DeepText = Color(0xFF1B5E20)
-private val OrganicAmber = Color(0xFFFFB300)
-private val SoftCream = Color(0xFFF9FBE7)
-private val SoftGrayBackground = Color(0xFFF5F5F5)
+// Color constants prefixed specifically to avoid package name conflicts
+private val ChatBotForestGreen = Color(0xFF2E7D32)
+private val ChatBotEmeraldGreen = Color(0xFF4CAF50)
+private val ChatBotDeepText = Color(0xFF1B5E20)
+private val ChatBotOrganicAmber = Color(0xFFFFB300)
+private val ChatBotSoftCream = Color(0xFFF9FBE7)
+private val ChatBotSoftGrayBackground = Color(0xFFF5F5F5)
 
 data class ChatMessage(
     val id: String,
@@ -154,7 +154,7 @@ fun AIChatBotDialog(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(SoftGrayBackground)
+                    .background(ChatBotSoftGrayBackground)
             ) {
                 // 1. Premium AI Assistant Header
                 Box(
@@ -162,7 +162,7 @@ fun AIChatBotDialog(
                         .fillMaxWidth()
                         .background(
                             Brush.verticalGradient(
-                                colors = listOf(ForestGreen, EmeraldGreen)
+                                colors = listOf(ChatBotForestGreen, ChatBotEmeraldGreen)
                             )
                         )
                         .statusBarsPadding()
@@ -227,7 +227,7 @@ fun AIChatBotDialog(
                                 Box(
                                     modifier = Modifier
                                         .size(32.dp)
-                                        .background(ForestGreen, CircleShape),
+                                        .background(ChatBotForestGreen, CircleShape),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text("🤖", fontSize = 16.sp)
@@ -237,7 +237,7 @@ fun AIChatBotDialog(
 
                             Column(
                                 modifier = Modifier.widthIn(max = 280.dp),
-                                horizontalAlignment = if (isUser) Alignment.End else Alignment.Start
+                                horizontalAlignment = if (isUser) Alignment.End else Arrangement.Start
                             ) {
                                 Card(
                                     shape = RoundedCornerShape(
@@ -247,7 +247,7 @@ fun AIChatBotDialog(
                                         bottomEnd = if (isUser) 4.dp else 16.dp
                                     ),
                                     colors = CardDefaults.cardColors(
-                                        containerColor = if (isUser) ForestGreen else Color.White
+                                        containerColor = if (isUser) ChatBotForestGreen else Color.White
                                     ),
                                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                                 ) {
@@ -266,8 +266,8 @@ fun AIChatBotDialog(
                                     Card(
                                         modifier = Modifier.fillMaxWidth(),
                                         shape = RoundedCornerShape(12.dp),
-                                        colors = CardDefaults.cardColors(containerColor = SoftCream),
-                                        border = androidx.compose.foundation.BorderStroke(1.dp, ForestGreen.copy(alpha = 0.3f))
+                                        colors = CardDefaults.cardColors(containerColor = ChatBotSoftCream),
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, ChatBotForestGreen.copy(alpha = 0.3f))
                                     ) {
                                         Column(modifier = Modifier.padding(10.dp)) {
                                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -277,7 +277,7 @@ fun AIChatBotDialog(
                                                     text = chat.recipeTitle,
                                                     fontWeight = FontWeight.Bold,
                                                     fontSize = 12.sp,
-                                                    color = DeepText
+                                                    color = ChatBotDeepText
                                                 )
                                             }
                                             Spacer(modifier = Modifier.height(8.dp))
@@ -288,7 +288,7 @@ fun AIChatBotDialog(
                                                     }
                                                     viewModel.triggerToast("Đã tự động thêm toàn bộ nguyên liệu của '${chat.recipeTitle}' vào Giỏ Hàng thành công!")
                                                 },
-                                                colors = ButtonDefaults.buttonColors(containerColor = ForestGreen),
+                                                colors = ButtonDefaults.buttonColors(containerColor = ChatBotForestGreen),
                                                 shape = RoundedCornerShape(8.dp),
                                                 modifier = Modifier.fillMaxWidth(),
                                                 contentPadding = PaddingValues(vertical = 4.dp)
@@ -317,7 +317,7 @@ fun AIChatBotDialog(
                                     modifier = Modifier
                                         .size(32.dp)
                                         .background(Color.White, CircleShape)
-                                        .border(1.dp, ForestGreen, CircleShape),
+                                        .border(1.dp, ChatBotForestGreen, CircleShape),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text("👤", fontSize = 16.sp)
@@ -336,7 +336,7 @@ fun AIChatBotDialog(
                                 Box(
                                     modifier = Modifier
                                         .size(32.dp)
-                                        .background(ForestGreen, CircleShape),
+                                        .background(ChatBotForestGreen, CircleShape),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text("🤖", fontSize = 16.sp)
@@ -380,32 +380,32 @@ fun AIChatBotDialog(
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .background(ForestGreen.copy(alpha = 0.08f), RoundedCornerShape(16.dp))
-                                    .border(0.5.dp, ForestGreen.copy(alpha = 0.2f), RoundedCornerShape(16.dp))
+                                    .background(ChatBotForestGreen.copy(alpha = 0.08f), RoundedCornerShape(16.dp))
+                                    .border(0.5.dp, ChatBotForestGreen.copy(alpha = 0.2f), RoundedCornerShape(16.dp))
                                     .clickable { handleSend("Salad giảm cân organic") }
                                     .padding(horizontal = 10.dp, vertical = 6.dp)
                             ) {
-                                Text("🥗 Salad giảm cân", fontSize = 11.sp, color = ForestGreen, fontWeight = FontWeight.Bold)
+                                Text("🥗 Salad giảm cân", fontSize = 11.sp, color = ChatBotForestGreen, fontWeight = FontWeight.Bold)
                             }
 
                             Box(
                                 modifier = Modifier
-                                    .background(ForestGreen.copy(alpha = 0.08f), RoundedCornerShape(16.dp))
-                                    .border(0.5.dp, ForestGreen.copy(alpha = 0.2f), RoundedCornerShape(16.dp))
+                                    .background(ChatBotForestGreen.copy(alpha = 0.08f), RoundedCornerShape(16.dp))
+                                    .border(0.5.dp, ChatBotForestGreen.copy(alpha = 0.2f), RoundedCornerShape(16.dp))
                                     .clickable { handleSend("Bữa sáng dinh dưỡng cho bé") }
                                     .padding(horizontal = 10.dp, vertical = 6.dp)
                             ) {
-                                Text("🥛 Bữa sáng bổ dưỡng", fontSize = 11.sp, color = ForestGreen, fontWeight = FontWeight.Bold)
+                                Text("🥛 Bữa sáng bổ dưỡng", fontSize = 11.sp, color = ChatBotForestGreen, fontWeight = FontWeight.Bold)
                             }
 
                             Box(
                                 modifier = Modifier
-                                    .background(ForestGreen.copy(alpha = 0.08f), RoundedCornerShape(16.dp))
-                                    .border(0.5.dp, ForestGreen.copy(alpha = 0.2f), RoundedCornerShape(16.dp))
+                                    .background(ChatBotForestGreen.copy(alpha = 0.08f), RoundedCornerShape(16.dp))
+                                    .border(0.5.dp, ChatBotForestGreen.copy(alpha = 0.2f), RoundedCornerShape(16.dp))
                                     .clickable { handleSend("Canh ba chỉ bông cải") }
                                     .padding(horizontal = 10.dp, vertical = 6.dp)
                             ) {
-                                Text("🍲 Canh bông cải", fontSize = 11.sp, color = ForestGreen, fontWeight = FontWeight.Bold)
+                                Text("🍲 Canh bông cải", fontSize = 11.sp, color = ChatBotForestGreen, fontWeight = FontWeight.Bold)
                             }
                         }
 
@@ -426,8 +426,8 @@ fun AIChatBotDialog(
                                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                                 keyboardActions = KeyboardActions(onSend = { handleSend(inputText) }),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = ForestGreen,
-                                    focusedLabelColor = ForestGreen
+                                    focusedBorderColor = ChatBotForestGreen,
+                                    focusedLabelColor = ChatBotForestGreen
                                 ),
                                 modifier = Modifier
                                     .weight(1f)
@@ -436,7 +436,7 @@ fun AIChatBotDialog(
                             Box(
                                 modifier = Modifier
                                     .size(46.dp)
-                                    .background(ForestGreen, CircleShape)
+                                    .background(ChatBotForestGreen, CircleShape)
                                     .clickable { handleSend(inputText) },
                                 contentAlignment = Alignment.Center
                             ) {
