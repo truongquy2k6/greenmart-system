@@ -266,6 +266,69 @@ fun AIChatBotDialog(
                                     )
                                 }
 
+                                if (!isUser && chat.id == "1") {
+                                    val presetTopics = listOf(
+                                        Triple("🥗 Salad Giảm Cân Organic", "Công thức Salad ức gà & bơ Đắk Lắk tốt lành", "Salad giảm cân organic"),
+                                        Triple("🍼 Bữa Sáng Dinh Dưỡng", "Thực đơn dinh dưỡng từ Táo Fuji & Sữa DalatMilk", "Bữa sáng dinh dưỡng"),
+                                        Triple("🍲 Canh Bông Cải VietGAP", "Canh bông cải xanh cuộn thịt heo sạch thanh mát", "Canh ba chỉ bông cải"),
+                                        Triple("🛡️ Tiêu Chuẩn Rau Sạch", "Khám phá quy trình kiểm duyệt VietGAP GreenMart", "Rau sạch VietGAP")
+                                    )
+
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    Text(
+                                        text = "👉 Gợi ý chủ đề hỏi AI nhanh:",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = ChatBotDeepText,
+                                        modifier = Modifier.padding(start = 4.dp, bottom = 6.dp)
+                                    )
+
+                                    presetTopics.forEachIndexed { index, (title, desc, query) ->
+                                        val bgColor = when (index) {
+                                            0 -> Color(0xFFE8F5E9)
+                                            1 -> Color(0xFFE3F2FD)
+                                            2 -> Color(0xFFFFF3E0)
+                                            else -> Color(0xFFF3E5F5)
+                                        }
+
+                                        Card(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 4.dp)
+                                                .clickable { handleSend(query) },
+                                            shape = RoundedCornerShape(12.dp),
+                                            colors = CardDefaults.cardColors(containerColor = bgColor),
+                                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.padding(12.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Column(modifier = Modifier.weight(1f)) {
+                                                    Text(
+                                                        text = title,
+                                                        fontSize = 13.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        color = Color.DarkGray
+                                                    )
+                                                    Spacer(modifier = Modifier.height(2.dp))
+                                                    Text(
+                                                        text = desc,
+                                                        fontSize = 10.sp,
+                                                        color = Color.Gray
+                                                    )
+                                                }
+                                                Icon(
+                                                    imageVector = Icons.Default.Send,
+                                                    contentDescription = null,
+                                                    tint = ChatBotForestGreen,
+                                                    modifier = Modifier.size(12.dp)
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+
                                 // Interactive Recipe add to cart card inside chat!
                                 if (chat.recipeItems != null && chat.recipeTitle != null) {
                                     Spacer(modifier = Modifier.height(8.dp))
@@ -382,7 +445,9 @@ fun AIChatBotDialog(
                         Spacer(modifier = Modifier.height(6.dp))
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .androidx.compose.foundation.horizontalScroll(rememberScrollState())
                         ) {
                             Box(
                                 modifier = Modifier
