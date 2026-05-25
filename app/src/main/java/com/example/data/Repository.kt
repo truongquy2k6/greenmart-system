@@ -276,5 +276,16 @@ class GreenMartRepository(private val dao: GreenMartDao) {
     }
 
     // --- Configuration (Bank details for stores) ---
-    suspend fun getCauHinhByStore(maCH: String): CauHinh? = dao.getCauHinhByStore(maCH)
+    suspend fun getCauHinhByStore(maCH: String): CauHinh? {
+        val local = dao.getCauHinhByStore(maCH)
+        if (local != null && local.BankId.isNotBlank()) return local
+        return try {
+            val remote = RetrofitClient.apiService.getStoreBankConfig(maCH)
+            dao.insertAllCauHinh(listOf(remote))
+            remote
+        } catch (e: Exception) {
+            e.printStackTrace()
+            local
+        }
+    }
 }

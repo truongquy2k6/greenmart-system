@@ -256,7 +256,7 @@ fun MainAppScaffold() {
                     onOrderSuccess = { invoiceId, msg ->
                         // Switch tab to account orders list or default home on success
                         selectedTabIndex = 4
-                        accountSubIndex = 2 // Move to history invoice subtab directly
+                        accountSubIndex = 0 // Move to profile history invoice subtab directly
                     }
                 )
 
@@ -277,7 +277,7 @@ fun MainAppScaffold() {
                         Tab(
                             selected = accountSubIndex == 0,
                             onClick = { accountSubIndex = 0 },
-                            text = { Text("Quà Đổi Điểm", color = Color.White, fontSize = 12.sp, fontWeight = if (accountSubIndex == 0) androidx.compose.ui.text.font.FontWeight.Bold else androidx.compose.ui.text.font.FontWeight.Normal) }
+                            text = { Text("Tài Khoản & Đơn", color = Color.White, fontSize = 12.sp, fontWeight = if (accountSubIndex == 0) androidx.compose.ui.text.font.FontWeight.Bold else androidx.compose.ui.text.font.FontWeight.Normal) }
                         )
                         Tab(
                             selected = accountSubIndex == 1,
@@ -287,27 +287,27 @@ fun MainAppScaffold() {
                         Tab(
                             selected = accountSubIndex == 2,
                             onClick = { accountSubIndex = 2 },
-                            text = { Text("Tài Khoản & Đơn", color = Color.White, fontSize = 12.sp, fontWeight = if (accountSubIndex == 2) androidx.compose.ui.text.font.FontWeight.Bold else androidx.compose.ui.text.font.FontWeight.Normal) }
+                            text = { Text("Quà Đổi Điểm", color = Color.White, fontSize = 12.sp, fontWeight = if (accountSubIndex == 2) androidx.compose.ui.text.font.FontWeight.Bold else androidx.compose.ui.text.font.FontWeight.Normal) }
                         )
                     }
 
                     Box(modifier = Modifier.weight(1f)) {
                         when (accountSubIndex) {
-                            0 -> LoyaltyScreen(
+                            0 -> ProfileScreen(
                                 viewModel = viewModel,
                                 customer = customer,
-                                gifts = gifts,
-                                history = history
+                                pastOrders = pastOrders
                             )
                             1 -> VoucherScreen(
                                 viewModel = viewModel,
                                 myVouchers = myVouchers,
                                 allVouchers = activeVouchers
                             )
-                            2 -> ProfileScreen(
+                            2 -> LoyaltyScreen(
                                 viewModel = viewModel,
                                 customer = customer,
-                                pastOrders = pastOrders
+                                gifts = gifts,
+                                history = history
                             )
                         }
                     }

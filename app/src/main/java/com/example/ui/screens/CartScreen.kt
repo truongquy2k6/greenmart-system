@@ -417,8 +417,14 @@ fun CartScreen(
 
                         Button(
                             onClick = { 
-                                checkoutResultState = null
-                                showCheckoutDialog = true 
+                                if (viewModel.maKH.isBlank()) {
+                                    coroutineScope.launch {
+                                        viewModel.triggerToast("Vui lòng đăng nhập tài khoản để thực hiện thanh toán!")
+                                    }
+                                } else {
+                                    checkoutResultState = null
+                                    showCheckoutDialog = true 
+                                }
                             },
                             modifier = Modifier
                                 .height(46.dp)
@@ -570,14 +576,18 @@ fun CartScreen(
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
 
+                                val bankId = storeBankConfig?.BankId?.ifBlank { "Vietcombank" } ?: "Vietcombank"
+                                val accountName = storeBankConfig?.AccountName?.ifBlank { "GREENMART CO." } ?: "GREENMART CO."
+                                val accountNo = storeBankConfig?.AccountNo?.ifBlank { "1012345678" } ?: "1012345678"
+
                                 Card(
                                     colors = CardDefaults.cardColors(containerColor = SoftCream),
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     Column(modifier = Modifier.padding(12.dp)) {
-                                        Text("🏦 Ngân hàng: ${storeBankConfig?.BankId ?: "Vietcombank"}", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = DeepText)
-                                        Text("👤 Tên tài khoản: ${storeBankConfig?.AccountName ?: "GREENMART CO."}", fontSize = 12.sp, color = Color.Gray)
-                                        Text("💳 Số TK: ${storeBankConfig?.AccountNo ?: "1012345678"}", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, color = Color.DarkGray)
+                                        Text("🏦 Ngân hàng: $bankId", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = DeepText)
+                                        Text("👤 Tên tài khoản: $accountName", fontSize = 12.sp, color = Color.Gray)
+                                        Text("💳 Số TK: $accountNo", fontSize = 14.sp, fontWeight = FontWeight.ExtraBold, color = Color.DarkGray)
                                         Text("💵 Số tiền: ${String.format("%,.0f", summary.total)} VND", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = ForestGreen)
                                         Text("📝 Nội dung: $payDesc", fontSize = 12.sp, color = Color.Gray, fontFamily = FontFamily.Monospace)
                                     }
@@ -594,7 +604,12 @@ fun CartScreen(
                                         .border(1.dp, Color.LightGray)
                                         .padding(10.dp)
                                 ) {
-                                    val qrUrl = "https://img.vietqr.io/image/${storeBankConfig?.BankId ?: "VCB"}-${storeBankConfig?.AccountNo ?: "1012345678"}-compact2.png?amount=${summary.total.toInt()}&addInfo=$payDesc&accountName=${storeBankConfig?.AccountName ?: "GREENMART"}"
+                                    val cleanBankId = if (bankId.contains("Vietcombank", ignoreCase = true)) "VCB"
+                                                      else if (bankId.contains("MB", ignoreCase = true)) "MB"
+                                                      else if (bankId.contains("Techcombank", ignoreCase = true)) "TCB"
+                                                      else if (bankId.contains("Vietin", ignoreCase = true)) "CTG"
+                                                      else bankId
+                                    val qrUrl = "https://img.vietqr.io/image/${cleanBankId}-${accountNo}-compact2.png?amount=${summary.total.toInt()}&addInfo=$payDesc&accountName=${accountName}"
                                     GreenMartImage(
                                         url = qrUrl,
                                         contentDescription = "VietQR Code",

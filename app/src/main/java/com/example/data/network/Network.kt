@@ -102,6 +102,11 @@ interface GreenMartApiService {
     suspend fun getInvoiceDetails(
         @Path("maHD") maHD: String
     ): List<ChiTietHoaDon>
+
+    @GET("api/cuahang/{maCH}/cauhinh")
+    suspend fun getStoreBankConfig(
+        @Path("maCH") maCH: String
+    ): CauHinh
 }
 
 // ---------------- RETROFIT CLIENT SINGLETON ----------------

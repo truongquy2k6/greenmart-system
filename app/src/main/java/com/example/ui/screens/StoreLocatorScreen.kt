@@ -80,10 +80,23 @@ fun StoreLocatorScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color(0xFF0F2610)) // Deep night-green sonar screen
-                    .padding(8.dp)
+                    .background(Color.Black)
             ) {
-                Canvas(modifier = Modifier.fillMaxSize()) {
+                // Real Satellite Aerial Map Image Texture
+                GreenMartImage(
+                    url = "https://images.unsplash.com/photo-1524661135-423995f22d0b?w=600",
+                    contentDescription = "Bản đồ vệ tinh",
+                    modifier = Modifier.fillMaxSize()
+                )
+
+                // Translucent night sonar overlay
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFF0F2610).copy(alpha = 0.5f))
+                )
+
+                Canvas(modifier = Modifier.fillMaxSize().padding(8.dp)) {
                     val center = Offset(size.width / 2, size.height / 2)
                     val maxRadius = minOf(size.width, size.height) / 2.2f
 
