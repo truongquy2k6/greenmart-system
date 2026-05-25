@@ -5,6 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -46,11 +48,23 @@ fun ProfileScreen(
         var addressInput by remember { mutableStateOf("") }
         
         val coroutineScope = rememberCoroutineScope()
+        val scrollState = rememberScrollState()
+        val textFieldColors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = DeepText,
+            unfocusedTextColor = DeepText,
+            focusedBorderColor = ForestGreen,
+            unfocusedBorderColor = Color.Gray,
+            focusedLabelColor = ForestGreen,
+            unfocusedLabelColor = Color.Gray,
+            focusedLeadingIconColor = ForestGreen,
+            unfocusedLeadingIconColor = Color.Gray
+        )
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(SoftGrayBackground)
+                .verticalScroll(scrollState)
                 .padding(20.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -151,10 +165,7 @@ fun ProfileScreen(
                             label = { Text("Số điện thoại") },
                             leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null, tint = ForestGreen) },
                             singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = ForestGreen,
-                                focusedLabelColor = ForestGreen
-                            ),
+                            colors = textFieldColors,
                             modifier = Modifier.fillMaxWidth()
                         )
 
@@ -167,10 +178,7 @@ fun ProfileScreen(
                             label = { Text("Mật khẩu") },
                             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = ForestGreen) },
                             singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = ForestGreen,
-                                focusedLabelColor = ForestGreen
-                            ),
+                            colors = textFieldColors,
                             visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -205,10 +213,7 @@ fun ProfileScreen(
                             label = { Text("Họ và tên khách hàng") },
                             leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = ForestGreen) },
                             singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = ForestGreen,
-                                focusedLabelColor = ForestGreen
-                            ),
+                            colors = textFieldColors,
                             modifier = Modifier.fillMaxWidth()
                         )
 
@@ -220,10 +225,7 @@ fun ProfileScreen(
                             label = { Text("Số điện thoại") },
                             leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null, tint = ForestGreen) },
                             singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = ForestGreen,
-                                focusedLabelColor = ForestGreen
-                            ),
+                            colors = textFieldColors,
                             modifier = Modifier.fillMaxWidth()
                         )
 
@@ -235,10 +237,7 @@ fun ProfileScreen(
                             label = { Text("Địa chỉ Email") },
                             leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = ForestGreen) },
                             singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = ForestGreen,
-                                focusedLabelColor = ForestGreen
-                            ),
+                            colors = textFieldColors,
                             modifier = Modifier.fillMaxWidth()
                         )
 
@@ -250,10 +249,7 @@ fun ProfileScreen(
                             label = { Text("Địa chỉ giao hàng mặc định") },
                             leadingIcon = { Icon(Icons.Default.Home, contentDescription = null, tint = ForestGreen) },
                             singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = ForestGreen,
-                                focusedLabelColor = ForestGreen
-                            ),
+                            colors = textFieldColors,
                             modifier = Modifier.fillMaxWidth()
                         )
 
@@ -265,10 +261,7 @@ fun ProfileScreen(
                             label = { Text("Mật khẩu thiết lập") },
                             leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = ForestGreen) },
                             singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = ForestGreen,
-                                focusedLabelColor = ForestGreen
-                            ),
+                            colors = textFieldColors,
                             visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
                             modifier = Modifier.fillMaxWidth()
                         )
