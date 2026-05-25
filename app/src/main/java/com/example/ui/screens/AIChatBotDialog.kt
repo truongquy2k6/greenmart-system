@@ -237,7 +237,7 @@ fun AIChatBotDialog(
 
                             Column(
                                 modifier = Modifier.widthIn(max = 280.dp),
-                                horizontalAlignment = if (isUser) Alignment.End else Arrangement.Start
+                                horizontalAlignment = if (isUser) Alignment.End else Alignment.Start
                             ) {
                                 Card(
                                     shape = RoundedCornerShape(
