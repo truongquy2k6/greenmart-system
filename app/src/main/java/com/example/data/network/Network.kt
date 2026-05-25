@@ -106,7 +106,7 @@ interface GreenMartApiService {
 
 // ---------------- RETROFIT CLIENT SINGLETON ----------------
 object RetrofitClient {
-    private const val BASE_URL = "https://chatty-dogs-bark.localtunnel.me/" // Emulator loopback to host localhost:5070
+    private const val BASE_URL = "https://greenmart-api-quy.loca.lt/" // Emulator loopback to host localhost:5070
 
     private val moshi = Moshi.Builder()
         .addLast(KotlinJsonAdapterFactory())
