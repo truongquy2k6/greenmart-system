@@ -1,0 +1,6 @@
+{
+  "name": "GreenMart",
+  "description": "GreenMart customer app: Order online, loyalty points, view card tiers, vouchers, store locator, and payment integration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
