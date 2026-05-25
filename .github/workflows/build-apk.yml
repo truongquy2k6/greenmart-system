@@ -13,10 +13,10 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: Set up JDK 17
+    - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
-        java-version: '17'
+        java-version: '21'
         distribution: 'temurin'
         cache: gradle
 
@@ -29,7 +29,7 @@ jobs:
         echo "TEST_KEY=test_value" > .env.example
 
     - name: Generate Gradle Wrapper
-      run: gradle wrapper --gradle-version 8.4
+      run: gradle wrapper --gradle-version 9.3.1
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
