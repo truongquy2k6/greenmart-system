@@ -134,7 +134,7 @@ fun AIChatBotDialog(
                 $vouchersContext
             """.trimIndent()
 
-            val apiKey = "AIzaSyBAkPPTgwzAiNpkVcXyjElA1aPnaS4f6Q0"
+            val apiKey = "YOUR_GEMINI_API_KEY_HERE"
 
             val rawResponse = callGeminiApi(apiKey, systemPrompt, messages)
 
@@ -618,6 +618,7 @@ suspend fun callGeminiApi(
 
         val request = Request.Builder()
             .url(url)
+            .addHeader("X-Client-Type", "Mobile")
             .post(requestBody)
             .build()
 

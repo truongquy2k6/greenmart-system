@@ -235,60 +235,64 @@ class GreenMartRepository(private val dao: GreenMartDao) {
             val finalInvoiceId = response.maHD.trim()
 
             // Save locally
-            val localHoaDon = HoaDon(
-                MaHD = finalInvoiceId,
-                NgayLap = System.currentTimeMillis(),
-                TongTien = total,
-                MaKH = trimmedKH,
-                MaNV = "NV001",
-                MaCH = trimmedCH,
-                MaKM = trimmedKM,
-                GiamGia = discount,
-                PhuongThucThanhToan = trimmedMethod,
-                TrangThai = "Chờ xử lý"
-            )
-            dao.insertHoaDon(localHoaDon)
-
-            val localDetails = itemsInCart.map { (product, qty) ->
-                ChiTietHoaDon(
+            try {
+                val localHoaDon = HoaDon(
                     MaHD = finalInvoiceId,
-                    MaSP = product.MaSP.trim(),
-                    SoLuong = qty,
-                    DonGia = product.DonGia,
-                    ThanhTien = product.DonGia * qty
-                ).apply {
-                    id = 0
-                }
-            }
-            dao.insertAllChiTietHoaDon(localDetails)
+                    NgayLap = System.currentTimeMillis(),
+                    TongTien = total,
+                    MaKH = trimmedKH,
+                    MaNV = "NV001",
+                    MaCH = trimmedCH,
+                    MaKM = trimmedKM,
+                    GiamGia = discount,
+                    PhuongThucThanhToan = trimmedMethod,
+                    TrangThai = "Chờ xử lý"
+                )
+                dao.insertHoaDon(localHoaDon)
 
-            // Update user points
-            val customer = dao.getKhachHang(trimmedKH)
-            if (customer != null) {
-                val updatedPoints = customer.DiemTichLuy + pointsEarned
-                val updatedCustomer = customer.copy(DiemTichLuy = updatedPoints)
-                dao.updateKhachHang(updatedCustomer)
-                
-                // remote update points
-                try {
-                    apiService.updateCustomer(
-                        ApiUpdateRequest(
-                            MaKH = updatedCustomer.MaKH,
-                            HoTen = updatedCustomer.HoTen,
-                            SoDienThoai = updatedCustomer.SoDienThoai,
-                            DiaChi = updatedCustomer.DiaChi,
-                            Email = updatedCustomer.Email,
-                            DiemTichLuy = updatedCustomer.DiemTichLuy,
-                            TrangThai = updatedCustomer.TrangThai
+                val localDetails = itemsInCart.map { (product, qty) ->
+                    ChiTietHoaDon(
+                        MaHD = finalInvoiceId,
+                        MaSP = product.MaSP.trim(),
+                        SoLuong = qty,
+                        DonGia = product.DonGia,
+                        ThanhTien = product.DonGia * qty
+                    ).apply {
+                        id = 0
+                    }
+                }
+                dao.insertAllChiTietHoaDon(localDetails)
+
+                // Update user points
+                val customer = dao.getKhachHang(trimmedKH)
+                if (customer != null) {
+                    val updatedPoints = customer.DiemTichLuy + pointsEarned
+                    val updatedCustomer = customer.copy(DiemTichLuy = updatedPoints)
+                    dao.updateKhachHang(updatedCustomer)
+                    
+                    // remote update points
+                    try {
+                        apiService.updateCustomer(
+                            ApiUpdateRequest(
+                                MaKH = updatedCustomer.MaKH,
+                                HoTen = updatedCustomer.HoTen,
+                                SoDienThoai = updatedCustomer.SoDienThoai,
+                                DiaChi = updatedCustomer.DiaChi,
+                                Email = updatedCustomer.Email,
+                                DiemTichLuy = updatedCustomer.DiemTichLuy,
+                                TrangThai = updatedCustomer.TrangThai
+                            )
                         )
-                    )
-                } catch (e: Exception) {
-                    // ignore
+                    } catch (e: Exception) {
+                        // ignore
+                    }
                 }
-            }
 
-            if (trimmedKM != null) {
-                dao.markVoucherAsUsed(trimmedKH, trimmedKM)
+                if (trimmedKM != null) {
+                    dao.markVoucherAsUsed(trimmedKH, trimmedKM)
+                }
+            } catch (localEx: Exception) {
+                android.util.Log.e("GreenMart", "Local DB ops failed but remote order succeeded", localEx)
             }
 
             Pair(true, finalInvoiceId)
