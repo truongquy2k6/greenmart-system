@@ -65,6 +65,7 @@ fun ProfileScreen(
         var emailInput by remember { mutableStateOf("") }
         var addressInput by remember { mutableStateOf("") }
         var activeSmsMessage by remember { mutableStateOf<String?>(null) }
+        var isLoading by remember { mutableStateOf(false) }
         
         val coroutineScope = rememberCoroutineScope()
         val scrollState = rememberScrollState()
@@ -283,17 +284,24 @@ fun ProfileScreen(
                                         viewModel.triggerToast("Vui lòng nhập số điện thoại hợp lệ!")
                                         return@Button
                                     }
+                                    isLoading = true
                                     coroutineScope.launch {
-                                        val exists = viewModel.checkPhoneExists(phoneInput)
-                                        if (exists) {
-                                            val otp = (100000..999999).random().toString()
-                                            generatedOtp = otp
-                                            timerSeconds = 60
-                                            isOtpSent = true
-                                            activeSmsMessage = "Mã OTP xác thực đăng nhập GreenMart của bạn là: $otp. Mã có hiệu lực trong 5 phút."
-                                            viewModel.triggerToast("[SMS OTP] Mã xác thực đăng nhập của bạn là: $otp")
-                                        } else {
-                                            viewModel.triggerToast("Số điện thoại chưa đăng ký thành viên! Vui lòng chọn Đăng Ký Mới.")
+                                        try {
+                                            val exists = viewModel.checkPhoneExists(phoneInput)
+                                            if (exists) {
+                                                val otp = (100000..999999).random().toString()
+                                                generatedOtp = otp
+                                                timerSeconds = 60
+                                                isOtpSent = true
+                                                activeSmsMessage = "Mã OTP xác thực đăng nhập GreenMart của bạn là: $otp. Mã có hiệu lực trong 5 phút."
+                                                viewModel.triggerToast("[SMS OTP] Mã xác thực đăng nhập của bạn là: $otp")
+                                            } else {
+                                                viewModel.triggerToast("Số điện thoại chưa đăng ký thành viên! Vui lòng chọn Đăng Ký Mới.")
+                                            }
+                                        } catch (e: Exception) {
+                                            viewModel.triggerToast("Không thể kết nối C# API! Vui lòng kiểm tra LocalTunnel / ngrok.")
+                                        } finally {
+                                            isLoading = false
                                         }
                                     }
                                 },
@@ -372,17 +380,24 @@ fun ProfileScreen(
                                         viewModel.triggerToast("Vui lòng nhập số điện thoại hợp lệ!")
                                         return@Button
                                     }
+                                    isLoading = true
                                     coroutineScope.launch {
-                                        val exists = viewModel.checkPhoneExists(phoneInput)
-                                        if (exists) {
-                                            viewModel.triggerToast("Số điện thoại này đã được đăng ký! Vui lòng chọn Đăng Nhập.")
-                                        } else {
-                                            val otp = (100000..999999).random().toString()
-                                            generatedOtp = otp
-                                            timerSeconds = 60
-                                            isOtpSent = true
-                                            activeSmsMessage = "Mã OTP xác thực đăng ký GreenMart của bạn là: $otp. Mã có hiệu lực trong 5 phút."
-                                            viewModel.triggerToast("[SMS OTP] Mã xác thực đăng ký của bạn là: $otp")
+                                        try {
+                                            val exists = viewModel.checkPhoneExists(phoneInput)
+                                            if (exists) {
+                                                viewModel.triggerToast("Số điện thoại này đã được đăng ký! Vui lòng chọn Đăng Nhập.")
+                                            } else {
+                                                val otp = (100000..999999).random().toString()
+                                                generatedOtp = otp
+                                                timerSeconds = 60
+                                                isOtpSent = true
+                                                activeSmsMessage = "Mã OTP xác thực đăng ký GreenMart của bạn là: $otp. Mã có hiệu lực trong 5 phút."
+                                                viewModel.triggerToast("[SMS OTP] Mã xác thực đăng ký của bạn là: $otp")
+                                            }
+                                        } catch (e: Exception) {
+                                            viewModel.triggerToast("Không thể kết nối C# API! Vui lòng kiểm tra LocalTunnel / ngrok.")
+                                        } finally {
+                                            isLoading = false
                                         }
                                     }
                                 },
@@ -467,16 +482,33 @@ fun ProfileScreen(
                                     viewModel.triggerToast("Mã OTP không chính xác. Vui lòng nhập lại!")
                                     return@Button
                                 }
+                                isLoading = true
                                 coroutineScope.launch {
-                                    if (isLoginMode) {
-                                        viewModel.loginWithOtp(phoneInput)
-                                    } else {
-                                        viewModel.registerWithOtp(
-                                            fullNameInput,
-                                            phoneInput,
-                                            emailInput,
-                                            addressInput
-                                        )
+                                    try {
+                                        if (isLoginMode) {
+                                            val success = viewModel.loginWithOtp(phoneInput)
+                                            if (success) {
+                                                isOtpSent = false
+                                                otpInput = ""
+                                                activeSmsMessage = null
+                                            }
+                                        } else {
+                                            val success = viewModel.registerWithOtp(
+                                                fullNameInput,
+                                                phoneInput,
+                                                emailInput,
+                                                addressInput
+                                            )
+                                            if (success) {
+                                                isOtpSent = false
+                                                otpInput = ""
+                                                activeSmsMessage = null
+                                            }
+                                        }
+                                    } catch (e: Exception) {
+                                        viewModel.triggerToast("Kết nối API thất bại! Vui lòng kiểm tra lại ngrok/localtunnel.")
+                                    } finally {
+                                        isLoading = false
                                     }
                                 }
                             },
@@ -502,6 +534,48 @@ fun ProfileScreen(
                                     generatedOtp = ""
                                 }
                                 .padding(4.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .clickable(enabled = false) {},
+                contentAlignment = Alignment.Center
+            ) {
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                    modifier = Modifier.padding(32.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = ForestGreen,
+                            strokeWidth = 3.dp,
+                            modifier = Modifier.size(48.dp)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Đang xử lý kết nối...",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            color = DeepText
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Vui lòng đợi trong giây lát",
+                            fontSize = 11.sp,
+                            color = Color.Gray
                         )
                     }
                 }

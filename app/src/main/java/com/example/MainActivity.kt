@@ -33,6 +33,7 @@ import com.example.ui.theme.MyApplicationTheme
 import com.example.viewmodel.GreenMartViewModel
 import com.example.viewmodel.UiEvent
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.delay
 
 data class AppNotification(
     val id: String,
@@ -91,9 +92,14 @@ fun MainAppScaffold() {
 
     // State for AI Chatbot Dialog
     var showChatBotDialog by remember { mutableStateOf(false) }
-
-    // State for Notifications Dialog
     var showNotificationsDialog by remember { mutableStateOf(false) }
+
+    // Splash screen state
+    var showSplashScreen by remember { mutableStateOf(true) }
+    LaunchedEffect(key1 = true) {
+        delay(1500)
+        showSplashScreen = false
+    }
 
     var notifications by remember {
         mutableStateOf(
@@ -121,7 +127,57 @@ fun MainAppScaffold() {
         }
     }
 
-    Scaffold(
+    if (showSplashScreen) {
+        val ForestGreen = Color(0xFF2E7D32)
+        val EmeraldGreen = Color(0xFF4CAF50)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Brush.verticalGradient(colors = listOf(ForestGreen, EmeraldGreen))),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(110.dp)
+                        .background(Color.White, shape = CircleShape)
+                        .padding(2.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.logogreenmart),
+                        contentDescription = "GreenMart Logo",
+                        modifier = Modifier.size(90.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "GreenMart",
+                    color = Color.White,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 2.sp
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "Siêu Thị Sạch Cho Mọi Nhà",
+                    color = Color.White.copy(alpha = 0.85f),
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+                CircularProgressIndicator(
+                    color = Color.White,
+                    strokeWidth = 2.dp,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
+    } else {
+        Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             val ForestGreen = Color(0xFF2E7D32)
@@ -594,4 +650,5 @@ fun MainAppScaffold() {
             shape = RoundedCornerShape(16.dp)
         )
     }
+}
 }
