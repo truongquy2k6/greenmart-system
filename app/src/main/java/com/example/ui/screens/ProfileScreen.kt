@@ -68,6 +68,8 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(SoftGrayBackground)
+                .systemBarsPadding()
+                .imePadding()
                 .verticalScroll(scrollState)
                 .padding(20.dp),
             verticalArrangement = Arrangement.Center,
