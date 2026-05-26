@@ -210,7 +210,6 @@ fun AIChatBotDialog(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(ChatBotSoftGrayBackground)
-                    .systemBarsPadding()
                     .imePadding()
             ) {
                 // 1. Premium AI Assistant Header
@@ -538,7 +537,7 @@ fun AIChatBotDialog(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(start = 4.dp, end = 4.dp, top = 4.dp, bottom = 16.dp),
+                                .padding(horizontal = 8.dp, vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             OutlinedTextField(
