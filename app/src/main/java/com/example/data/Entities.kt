@@ -20,7 +20,7 @@ data class SanPham(
     val MaNCC: String,
     val MaLoai: String,
     val TrangThai: String,
-    val NgayTao: Long
+    val NgayTao: Long = 0L
 )
 
 @Entity
