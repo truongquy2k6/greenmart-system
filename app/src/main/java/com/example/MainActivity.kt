@@ -516,7 +516,7 @@ fun MainAppScaffold() {
                         }
                         .size(64.dp)
                         .shadow(6.dp, CircleShape)
-                        .background(Color(0xFFE8F5E9), CircleShape)
+                        .background(Color(0xFFA5D6A7), CircleShape)
                         .border(1.5.dp, Color(0xFF2E7D32), CircleShape)
                         .clickable { showChatBotDialog = true }
                         .padding(8.dp),

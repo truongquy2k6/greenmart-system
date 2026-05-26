@@ -71,8 +71,9 @@ fun CartScreen(
         }
     }
 
-    // Collect config
+    // Collect config & customer profile state
     val configState by viewModel.paymentConfig.collectAsState()
+    val customer by viewModel.customerState.collectAsState()
     LaunchedEffect(configState) {
         storeBankConfig = configState
     }
@@ -758,8 +759,10 @@ fun CartScreen(
                                         Text("MoMo", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                                     }
                                     Spacer(modifier = Modifier.height(12.dp))
+                                    val momoPhone = customer?.SoDienThoai?.trim() ?: "0901234567"
+                                    val momoName = customer?.HoTen?.trim()?.uppercase() ?: "KHÁCH HÀNG GREENMART"
                                     Text(
-                                        text = "Ví MoMo liên kết: 0123456789 (${cardName.ifBlank { "TRẦN HUY HOÀNG" }})",
+                                        text = "Ví MoMo liên kết: $momoPhone ($momoName)",
                                         fontSize = 13.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = Color.DarkGray
