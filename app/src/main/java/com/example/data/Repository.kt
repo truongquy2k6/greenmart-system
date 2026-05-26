@@ -293,6 +293,18 @@ class GreenMartRepository(private val dao: GreenMartDao) {
 
             Pair(true, finalInvoiceId)
 
+        } catch (e: retrofit2.HttpException) {
+            val errorBody = e.response()?.errorBody()?.string() ?: ""
+            android.util.Log.e("GreenMart", "Place order HTTP error: $errorBody", e)
+            val errMsg = try {
+                val json = org.json.JSONObject(errorBody)
+                json.optString("detail").takeIf { it.isNotEmpty() } 
+                    ?: json.optString("message").takeIf { it.isNotEmpty() } 
+                    ?: errorBody
+            } catch (ex: Exception) {
+                errorBody
+            }
+            Pair(false, "Lỗi từ server: $errMsg")
         } catch (e: Exception) {
             android.util.Log.e("GreenMart", "Place order remote API failed: ", e)
             Pair(false, e.message ?: "Mất kết nối mạng hoặc lỗi cơ sở dữ liệu server.")
