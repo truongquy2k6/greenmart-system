@@ -1,5 +1,6 @@
 package com.example.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -195,23 +196,20 @@ fun AIChatBotDialog(
         sendSystemResponse(userMsg.message)
     }
 
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-            decorFitsSystemWindows = false
-        )
+    BackHandler(enabled = true) {
+        onDismiss()
+    }
+
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Color.White
     ) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = Color.White
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(ChatBotSoftGrayBackground)
+                .imePadding()
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(ChatBotSoftGrayBackground)
-                    .imePadding()
-            ) {
                 // 1. Premium AI Assistant Header
                 Box(
                     modifier = Modifier
@@ -575,7 +573,6 @@ fun AIChatBotDialog(
             }
         }
     }
-}
 
 suspend fun callGeminiApi(
     apiKey: String,
@@ -617,7 +614,7 @@ suspend fun callGeminiApi(
         val mediaType = "application/json; charset=utf-8".toMediaType()
         val requestBody = rootJson.toString().toRequestBody(mediaType)
 
-        val url = "https://greenmart-api-quy.loca.lt/api/chatbot"
+        val url = "${com.example.data.network.RetrofitClient.BASE_URL}api/chatbot"
 
         val request = Request.Builder()
             .url(url)
