@@ -333,7 +333,7 @@ class GreenMartViewModel(application: Application) : AndroidViewModel(applicatio
         val user = repository.getKhachHangByPhone(phoneNumber.trim())
         if (user != null) {
             if (user.MatKhau == matKhau) {
-                _currentMaKH.value = user.MaKH
+                saveSession(user.MaKH)
                 triggerToast("Đăng nhập thành công! Chào mừng ${user.HoTen}.")
                 return true
             } else {
