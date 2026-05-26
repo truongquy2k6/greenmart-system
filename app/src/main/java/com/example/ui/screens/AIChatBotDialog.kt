@@ -133,7 +133,7 @@ fun AIChatBotDialog(
                 $vouchersContext
             """.trimIndent()
 
-            val apiKey = "AIzaSyBk8TaLwGIv8csEukTnzIRyk7qVStQWvN8"
+            val apiKey = "AIzaSyBAkPPTgwzAiNpkVcXyjElA1aPnaS4f6Q0"
 
             val rawResponse = callGeminiApi(apiKey, systemPrompt, messages)
 
@@ -481,7 +481,9 @@ fun AIChatBotDialog(
 
                 // 3. Preset chips list for fast testing and navigation
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .navigationBarsPadding(),
                     shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -533,11 +535,10 @@ fun AIChatBotDialog(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // Message input row
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 4.dp),
+                                .padding(start = 4.dp, end = 4.dp, top = 4.dp, bottom = 16.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             OutlinedTextField(
@@ -617,7 +618,7 @@ suspend fun callGeminiApi(
         val mediaType = "application/json; charset=utf-8".toMediaType()
         val requestBody = rootJson.toString().toRequestBody(mediaType)
 
-        val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=$apiKey"
+        val url = "https://greenmart-api-quy.loca.lt/api/chatbot"
 
         val request = Request.Builder()
             .url(url)
