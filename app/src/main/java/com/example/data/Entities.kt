@@ -32,7 +32,8 @@ data class KhachHang(
     val Email: String = "",
     val DiemTichLuy: Int = 0,
     val NgayTao: Long = 0L,
-    val TrangThai: String = ""
+    val TrangThai: String = "",
+    val MatKhau: String = ""
 )
 
 @Entity
@@ -105,17 +106,17 @@ data class CauHinh(
 data class QuaDongTichDiem(
     @PrimaryKey val MaQua: String,
     val TenQua: String,
-    val DiemYeuCau: Int,
+    val DiemCanThiet: Int,
     val HinhAnh: String,
-    val SoLuongConLai: Int
+    val SoLuongCon: Int
 )
 
 @Entity
 data class LichSuDoiQua(
-    @PrimaryKey val MaLS: String,
+    @PrimaryKey val MaLichSu: String,
     val MaKH: String,
     val MaQua: String,
     val NgayDoi: Long,
-    val DiemDaDung: Int,
+    val SoDiemKhauTru: Int,
     val TrangThai: String
 )
