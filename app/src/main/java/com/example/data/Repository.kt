@@ -8,6 +8,30 @@ class GreenMartRepository(private val dao: GreenMartDao) {
 
     private val apiService = RetrofitClient.apiService
 
+    suspend fun syncWithApi() {
+        try {
+            val categories = apiService.getCategories()
+            if (categories.isNotEmpty()) {
+                dao.insertAllLoaiSanPham(categories)
+            }
+            val products = apiService.getProducts()
+            if (products.isNotEmpty()) {
+                dao.insertAllSanPham(products)
+            }
+            val stores = apiService.getStores()
+            if (stores.isNotEmpty()) {
+                dao.insertAllCuaHang(stores)
+            }
+            val vouchers = apiService.getVouchers()
+            if (vouchers.isNotEmpty()) {
+                dao.insertAllKhuyenMai(vouchers)
+            }
+        } catch (e: Exception) {
+            // Ignore startup sync network errors
+        }
+    }
+
+
     // --- Master Data Streams ---
     val allCategories: Flow<List<LoaiSanPham>> = dao.getAllLoaiSanPhamFlow()
     val activeProducts: Flow<List<SanPham>> = dao.getActiveProductsFlow()
