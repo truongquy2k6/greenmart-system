@@ -245,15 +245,17 @@ fun MainAppScaffold() {
                             Box(
                                 modifier = Modifier
                                     .align(Alignment.TopEnd)
-                                    .padding(top = 2.dp, end = 2.dp)
-                                    .background(Color.Red, CircleShape)
-                                    .padding(horizontal = 5.dp, vertical = 1.dp)
+                                    .padding(top = 3.dp, end = 3.dp)
+                                    .size(14.dp)
+                                    .background(Color.Red, CircleShape),
+                                contentAlignment = Alignment.Center
                             ) {
                                 Text(
                                     text = unreadCount.toString(),
                                     color = Color.White,
                                     fontSize = 8.sp,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
+                                    textAlign = TextAlign.Center
                                 )
                             }
                         }

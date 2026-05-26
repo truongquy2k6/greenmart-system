@@ -43,8 +43,8 @@ data class CuaHang(
     val DiaChi: String,
     val SoDienThoai: String,
     val Email: String,
-    val Latitude: Double,
-    val Longitude: Double
+    val Latitude: Double = 0.0,
+    val Longitude: Double = 0.0
 )
 
 @Entity
