@@ -14,8 +14,10 @@ android {
     applicationId = "com.aistudio.greenmart.kuyzt"
     minSdk = 24
     targetSdk = 36
-    versionCode = 1
-    versionName = "1.0"
+    
+    val vc = (project.findProperty("versionCode") as? String)?.toIntOrNull() ?: 1
+    versionCode = vc
+    versionName = "1.0+$vc"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
