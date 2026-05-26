@@ -6,6 +6,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.ui.draw.shadow
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.clickable
@@ -512,8 +514,12 @@ fun MainAppScaffold() {
                                 aiButtonOffsetY += dragAmount.y
                             }
                         }
-                        .size(62.dp)
-                        .clickable { showChatBotDialog = true },
+                        .size(64.dp)
+                        .shadow(6.dp, CircleShape)
+                        .background(Color(0xFFE8F5E9), CircleShape)
+                        .border(1.5.dp, Color(0xFF2E7D32), CircleShape)
+                        .clickable { showChatBotDialog = true }
+                        .padding(8.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(

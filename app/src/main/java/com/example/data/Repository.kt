@@ -169,7 +169,7 @@ class GreenMartRepository(private val dao: GreenMartDao) {
     ): Pair<Boolean, String> {
         val details = itemsInCart.map { (product, quantity) ->
             ApiInvoiceDetailRequest(
-                MaSP = product.MaSP,
+                MaSP = product.MaSP.trim(),
                 SoLuong = quantity,
                 DonGia = product.DonGia
             )
@@ -181,15 +181,15 @@ class GreenMartRepository(private val dao: GreenMartDao) {
         try {
             val orderResponse = RetrofitClient.apiService.placeOrder(
                 ApiCreateInvoiceRequest(
-                    MaKH = maKH,
+                    MaKH = maKH.trim(),
                     TongTien = total,
-                    MaKM = maKM,
+                    MaKM = maKM?.trim(),
                     GiamGia = discount,
-                    PhuongThucThanhToan = paymentMethod,
+                    PhuongThucThanhToan = paymentMethod.trim(),
                     ChiTiet = details
                 )
             )
-            maHD = orderResponse.maHD
+            maHD = orderResponse.maHD.trim()
             isApiSuccess = true
         } catch (e: Exception) {
             e.printStackTrace()
