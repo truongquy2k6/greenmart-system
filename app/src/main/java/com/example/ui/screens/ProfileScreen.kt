@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.animation.animateContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -63,6 +64,7 @@ fun ProfileScreen(
         var fullNameInput by remember { mutableStateOf("") }
         var emailInput by remember { mutableStateOf("") }
         var addressInput by remember { mutableStateOf("") }
+        var activeSmsMessage by remember { mutableStateOf<String?>(null) }
         
         val coroutineScope = rememberCoroutineScope()
         val scrollState = rememberScrollState()
@@ -96,6 +98,81 @@ fun ProfileScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Simulated SMS Message Notification Banner
+            if (activeSmsMessage != null) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp)
+                        .animateContentSize(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)), // Dark slate theme
+                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .background(ForestGreen, shape = RoundedCornerShape(18.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Send,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                        
+                        Spacer(modifier = Modifier.width(12.dp))
+                        
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = "💬 TIN NHẮN SMS (GIẢ LẬP)",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = ForestGreen
+                                )
+                                Text(
+                                    text = "Vừa xong",
+                                    fontSize = 10.sp,
+                                    color = Color.LightGray
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = activeSmsMessage ?: "",
+                                fontSize = 13.sp,
+                                color = Color.White,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                        
+                        Spacer(modifier = Modifier.width(8.dp))
+                        
+                        IconButton(
+                            onClick = { activeSmsMessage = null },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Close",
+                                tint = Color.LightGray,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -213,6 +290,7 @@ fun ProfileScreen(
                                             generatedOtp = otp
                                             timerSeconds = 60
                                             isOtpSent = true
+                                            activeSmsMessage = "Mã OTP xác thực đăng nhập GreenMart của bạn là: $otp. Mã có hiệu lực trong 5 phút."
                                             viewModel.triggerToast("[SMS OTP] Mã xác thực đăng nhập của bạn là: $otp")
                                         } else {
                                             viewModel.triggerToast("Số điện thoại chưa đăng ký thành viên! Vui lòng chọn Đăng Ký Mới.")
@@ -303,6 +381,7 @@ fun ProfileScreen(
                                             generatedOtp = otp
                                             timerSeconds = 60
                                             isOtpSent = true
+                                            activeSmsMessage = "Mã OTP xác thực đăng ký GreenMart của bạn là: $otp. Mã có hiệu lực trong 5 phút."
                                             viewModel.triggerToast("[SMS OTP] Mã xác thực đăng ký của bạn là: $otp")
                                         }
                                     }
@@ -372,6 +451,7 @@ fun ProfileScreen(
                                         generatedOtp = otp
                                         timerSeconds = 60
                                         otpInput = ""
+                                        activeSmsMessage = "Mã OTP mới xác thực GreenMart của bạn là: $otp. Mã có hiệu lực trong 5 phút."
                                         viewModel.triggerToast("[SMS OTP] Mã OTP mới của bạn là: $otp")
                                     }
                                     .padding(4.dp)
