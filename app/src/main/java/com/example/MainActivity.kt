@@ -136,7 +136,7 @@ fun MainAppScaffold() {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "GreenMart 🥦",
+                        text = "GreenMart 🥬",
                         color = Color.White,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
@@ -408,7 +408,14 @@ fun MainAppScaffold() {
                             0 -> ProfileScreen(
                                 viewModel = viewModel,
                                 customer = customer,
-                                pastOrders = pastOrders
+                                pastOrders = pastOrders,
+                                myVouchersCount = myVouchers.size,
+                                activeVouchersCount = activeVouchers.size,
+                                unreadNotificationsCount = notifications.count { !it.isRead },
+                                giftsCount = gifts.size,
+                                onShowNotifications = { showNotificationsDialog = true },
+                                onNavigateToSubTab = { index -> accountSubIndex = index },
+                                onNavigateToMainTab = { index -> selectedTabIndex = index }
                             )
                             1 -> VoucherScreen(
                                 viewModel = viewModel,
@@ -508,12 +515,15 @@ fun MainAppScaffold() {
                                 elevation = CardDefaults.cardElevation(defaultElevation = if (item.isRead) 0.dp else 1.dp)
                             ) {
                                 Column(modifier = Modifier.padding(12.dp)) {
-                                    Row(
+                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
+                                        verticalAlignment = Alignment.Top
                                     ) {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier.weight(1f)
+                                        ) {
                                             if (!item.isRead) {
                                                 Box(
                                                     modifier = Modifier
@@ -529,7 +539,13 @@ fun MainAppScaffold() {
                                                 color = DeepText
                                             )
                                         }
-                                        Text(text = item.time, fontSize = 9.sp, color = Color.Gray)
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = item.time,
+                                            fontSize = 9.sp,
+                                            color = Color.Gray,
+                                            modifier = Modifier.padding(top = 2.dp)
+                                        )
                                     }
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(

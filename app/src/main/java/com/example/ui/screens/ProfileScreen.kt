@@ -37,7 +37,14 @@ import java.util.Locale
 fun ProfileScreen(
     viewModel: GreenMartViewModel,
     customer: KhachHang?,
-    pastOrders: List<HoaDon>
+    pastOrders: List<HoaDon>,
+    myVouchersCount: Int = 0,
+    activeVouchersCount: Int = 0,
+    unreadNotificationsCount: Int = 0,
+    giftsCount: Int = 0,
+    onShowNotifications: () -> Unit = {},
+    onNavigateToSubTab: (Int) -> Unit = {},
+    onNavigateToMainTab: (Int) -> Unit = {}
 ) {
     val dateFormatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
     var selectedOrderForDetail by remember { mutableStateOf<HoaDon?>(null) }
@@ -412,29 +419,48 @@ fun ProfileScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column {
-                    BHXMenuItem(icon = Icons.Default.Notifications, title = "Thông báo", badgeText = "9+", onClick = {
-                        viewModel.triggerToast("Bạn không có thông báo mới nào.")
-                    })
+                    BHXMenuItem(
+                        icon = Icons.Default.Notifications,
+                        title = "Thông báo",
+                        badgeText = if (unreadNotificationsCount > 0) unreadNotificationsCount.toString() else null,
+                        onClick = { onShowNotifications() }
+                    )
                     Divider(color = Color.LightGray.copy(alpha = 0.3f), thickness = 0.5.dp)
                     BHXMenuItem(icon = Icons.Default.Check, title = "Tiền dư", rightText = "0đ", onClick = {
                         viewModel.triggerToast("Tài khoản tiền dư của bạn đang là 0đ.")
                     })
                     Divider(color = Color.LightGray.copy(alpha = 0.3f), thickness = 0.5.dp)
-                    BHXMenuItem(icon = Icons.Default.Star, title = "Phiếu mua hàng", badgeText = "10", badgeColor = OrganicAmber, onClick = {
-                        viewModel.triggerToast("Vui lòng mở tab 'Voucher Của Tôi' ở bên cạnh để sử dụng!")
-                    })
+                    BHXMenuItem(
+                        icon = Icons.Default.Star,
+                        title = "Phiếu mua hàng",
+                        badgeText = if (myVouchersCount > 0) myVouchersCount.toString() else null,
+                        badgeColor = OrganicAmber,
+                        onClick = { onNavigateToSubTab(1) }
+                    )
                     Divider(color = Color.LightGray.copy(alpha = 0.3f), thickness = 0.5.dp)
-                    BHXMenuItem(icon = Icons.Default.Favorite, title = "Quà của tôi", badgeText = "1", badgeColor = OrganicAmber, onClick = {
-                        viewModel.triggerToast("Vui lòng mở tab 'Quà Đổi Điểm' ở bên cạnh để nhận quà!")
-                    })
+                    BHXMenuItem(
+                        icon = Icons.Default.Favorite,
+                        title = "Quà của tôi",
+                        badgeText = if (giftsCount > 0) giftsCount.toString() else null,
+                        badgeColor = OrganicAmber,
+                        onClick = { onNavigateToSubTab(2) }
+                    )
                     Divider(color = Color.LightGray.copy(alpha = 0.3f), thickness = 0.5.dp)
-                    BHXMenuItem(icon = Icons.Default.Star, title = "Ưu đãi đặc biệt", badgeText = "2", badgeColor = OrganicAmber, onClick = {
-                        viewModel.triggerToast("Xem danh sách Khuyến Mãi hot tại trang chủ GreenMart nhé!")
-                    })
+                    BHXMenuItem(
+                        icon = Icons.Default.Star,
+                        title = "Ưu đãi đặc biệt",
+                        badgeText = if (activeVouchersCount > 0) activeVouchersCount.toString() else null,
+                        badgeColor = OrganicAmber,
+                        onClick = { onNavigateToMainTab(0) }
+                    )
                     Divider(color = Color.LightGray.copy(alpha = 0.3f), thickness = 0.5.dp)
-                    BHXMenuItem(icon = Icons.Default.Star, title = "Tích điểm đổi quà", badgeText = "3", badgeColor = OrganicAmber, onClick = {
-                        viewModel.triggerToast("Hãy mở tab 'Quà Đổi Điểm' để thực hiện đổi quà bằng điểm thưởng của bạn!")
-                    })
+                    BHXMenuItem(
+                        icon = Icons.Default.Star,
+                        title = "Tích điểm đổi quà",
+                        badgeText = if (giftsCount > 0) giftsCount.toString() else null,
+                        badgeColor = OrganicAmber,
+                        onClick = { onNavigateToSubTab(2) }
+                    )
                 }
             }
         }

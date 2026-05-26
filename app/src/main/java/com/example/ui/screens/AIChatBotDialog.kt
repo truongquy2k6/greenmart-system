@@ -73,7 +73,7 @@ fun AIChatBotDialog(
                 ChatMessage(
                     id = "1",
                     sender = "AI",
-                    message = "Xin chào! Tôi là Trợ Lý Sức Khỏe AI của GreenMart 🥦.\nTôi có thể giúp bạn lên thực đơn, gợi ý các món ăn dinh dưỡng và tự động thêm các nguyên liệu tươi sạch chuẩn VietGAP vào Giỏ Hàng giúp bạn!\n\nBạn có thể thử bấm các gợi ý bên dưới để trải nghiệm nhé! 👇"
+                    message = "Xin chào! Tôi là Trợ Lý Sức Khỏe AI của GreenMart 🥬.\nTôi có thể giúp bạn lên thực đơn, gợi ý các món ăn dinh dưỡng và tự động thêm các nguyên liệu tươi sạch chuẩn VietGAP vào Giỏ Hàng giúp bạn!\n\nBạn có thể thử bấm các gợi ý bên dưới để trải nghiệm nhé! 👇"
                 )
             )
         )
@@ -210,6 +210,8 @@ fun AIChatBotDialog(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(ChatBotSoftGrayBackground)
+                    .systemBarsPadding()
+                    .imePadding()
             ) {
                 // 1. Premium AI Assistant Header
                 Box(
@@ -479,10 +481,7 @@ fun AIChatBotDialog(
 
                 // 3. Preset chips list for fast testing and navigation
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .navigationBarsPadding()
-                        .imePadding(),
+                    modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -618,7 +617,7 @@ suspend fun callGeminiApi(
         val mediaType = "application/json; charset=utf-8".toMediaType()
         val requestBody = rootJson.toString().toRequestBody(mediaType)
 
-        val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$apiKey"
+        val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=$apiKey"
 
         val request = Request.Builder()
             .url(url)

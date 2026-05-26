@@ -59,60 +59,9 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(ForestGreen, shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp))
-                .padding(horizontal = 24.dp, vertical = 28.dp)
+                .padding(horizontal = 24.dp, vertical = 24.dp)
         ) {
             Column {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .background(Color.White, shape = CircleShape)
-                                .padding(2.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.logogreenmart),
-                                contentDescription = "GreenMart Logo",
-                                modifier = Modifier.size(36.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text(
-                                text = "GREENMART",
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.ExtraBold,
-                                fontFamily = FontFamily.SansSerif,
-                                color = SoftCream,
-                                letterSpacing = 1.5.sp
-                            )
-                            Text(
-                                text = "Hệ Thống Thực Phẩm Hữu Cơ",
-                                fontSize = 11.sp,
-                                color = SoftCream.copy(alpha = 0.8f)
-                            )
-                        }
-                    }
-                    IconButton(
-                        onClick = onNavigateToCatalog,
-                        modifier = Modifier
-                            .background(Color.White.copy(alpha = 0.15f), shape = CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Tìm kiếm",
-                            tint = Color.White
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(20.dp))
-
                 // Personalized welcome segment
                 Text(
                     text = "Xin chào, ${customer?.HoTen ?: "Khách hàng"} 👋",
@@ -120,6 +69,7 @@ fun HomeScreen(
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Hôm nay bạn muốn đặt món ngon rau sạch nào?",
                     fontSize = 14.sp,
