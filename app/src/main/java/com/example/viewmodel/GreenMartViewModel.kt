@@ -314,7 +314,7 @@ class GreenMartViewModel(application: Application) : AndroidViewModel(applicatio
         if (success) {
             // Clear cart
             clearCart()
-            emit(CheckoutResult.Success(invoiceId, "Đơn hàng $invoiceId hoàn tất! Cửa hàng ${store.TenCH} đã bắt đầu chế biến thực tươi nấu nướng."))
+            emit(CheckoutResult.Success(invoiceId, "Đơn hàng $invoiceId hoàn tất! Cửa hàng ${store.TenCH} đã bắt đầu chuẩn bị hàng hóa."))
         } else {
             emit(CheckoutResult.Error("Đặt hàng thất bại: $invoiceId"))
         }
