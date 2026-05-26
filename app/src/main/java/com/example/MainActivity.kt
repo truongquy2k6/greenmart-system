@@ -246,16 +246,18 @@ fun MainAppScaffold() {
                                 modifier = Modifier
                                     .align(Alignment.TopEnd)
                                     .padding(top = 3.dp, end = 3.dp)
-                                    .size(14.dp)
+                                    .size(15.dp)
                                     .background(Color.Red, CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
                                     text = unreadCount.toString(),
                                     color = Color.White,
-                                    fontSize = 8.sp,
+                                    fontSize = 8.5.sp,
                                     fontWeight = FontWeight.Bold,
-                                    textAlign = TextAlign.Center
+                                    textAlign = TextAlign.Center,
+                                    lineHeight = 8.5.sp,
+                                    modifier = Modifier.wrapContentHeight(Alignment.CenterVertically)
                                 )
                             }
                         }

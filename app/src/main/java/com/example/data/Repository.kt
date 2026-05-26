@@ -294,43 +294,8 @@ class GreenMartRepository(private val dao: GreenMartDao) {
             Pair(true, finalInvoiceId)
 
         } catch (e: Exception) {
-            // Local fallback
-            val localHoaDon = HoaDon(
-                MaHD = localInvoiceId,
-                NgayLap = System.currentTimeMillis(),
-                TongTien = total,
-                MaKH = trimmedKH,
-                MaNV = "NV001",
-                MaCH = trimmedCH,
-                MaKM = trimmedKM,
-                GiamGia = discount,
-                PhuongThucThanhToan = trimmedMethod,
-                TrangThai = "Đã thanh toán (Cục bộ)"
-            )
-            dao.insertHoaDon(localHoaDon)
-
-            val localDetails = itemsInCart.map { (product, qty) ->
-                ChiTietHoaDon(
-                    MaHD = localInvoiceId,
-                    MaSP = product.MaSP.trim(),
-                    SoLuong = qty,
-                    DonGia = product.DonGia,
-                    ThanhTien = product.DonGia * qty
-                ).apply {
-                    id = 0
-                }
-            }
-            dao.insertAllChiTietHoaDon(localDetails)
-
-            val customer = dao.getKhachHang(trimmedKH)
-            if (customer != null) {
-                dao.updateKhachHang(customer.copy(DiemTichLuy = customer.DiemTichLuy + pointsEarned))
-            }
-            if (trimmedKM != null) {
-                dao.markVoucherAsUsed(trimmedKH, trimmedKM)
-            }
-
-            Pair(true, localInvoiceId)
+            android.util.Log.e("GreenMart", "Place order remote API failed: ", e)
+            Pair(false, e.message ?: "Mất kết nối mạng hoặc lỗi cơ sở dữ liệu server.")
         }
     }
 }
