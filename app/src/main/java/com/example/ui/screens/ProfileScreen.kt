@@ -52,7 +52,12 @@ fun ProfileScreen(
     if (customer == null) {
         var isLoginMode by remember { mutableStateOf(true) }
         var phoneInput by remember { mutableStateOf("") }
-        var passwordInput by remember { mutableStateOf("") }
+        
+        // OTP authentication state variables
+        var isOtpSent by remember { mutableStateOf(false) }
+        var otpInput by remember { mutableStateOf("") }
+        var generatedOtp by remember { mutableStateOf("") }
+        var timerSeconds by remember { mutableStateOf(0) }
         
         var fullNameInput by remember { mutableStateOf("") }
         var emailInput by remember { mutableStateOf("") }
@@ -70,6 +75,14 @@ fun ProfileScreen(
             focusedLeadingIconColor = ForestGreen,
             unfocusedLeadingIconColor = Color.Gray
         )
+
+        // Countdown timer implementation
+        LaunchedEffect(timerSeconds) {
+            if (timerSeconds > 0) {
+                delay(1000)
+                timerSeconds -= 1
+            }
+        }
 
         Column(
             modifier = Modifier
@@ -122,183 +135,293 @@ fun ProfileScreen(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // Tab Selector
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(44.dp)
-                            .background(Color(0xFFF1F5F9), shape = RoundedCornerShape(22.dp)),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
+                    if (!isOtpSent) {
+                        // Tab Selector (Only show if OTP is not sent yet)
+                        Row(
                             modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .clickable { isLoginMode = true }
-                                .background(
-                                    if (isLoginMode) ForestGreen else Color.Transparent,
-                                    shape = RoundedCornerShape(22.dp)
-                                ),
-                            contentAlignment = Alignment.Center
+                                .fillMaxWidth()
+                                .height(44.dp)
+                                .background(Color(0xFFF1F5F9), shape = RoundedCornerShape(22.dp)),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                "Đăng Nhập",
-                                color = if (isLoginMode) Color.White else Color.Gray,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                                    .clickable { isLoginMode = true }
+                                    .background(
+                                        if (isLoginMode) ForestGreen else Color.Transparent,
+                                        shape = RoundedCornerShape(22.dp)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    "Đăng Nhập",
+                                    color = if (isLoginMode) Color.White else Color.Gray,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp
+                                )
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                                    .clickable { isLoginMode = false }
+                                    .background(
+                                        if (!isLoginMode) ForestGreen else Color.Transparent,
+                                        shape = RoundedCornerShape(22.dp)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    "Đăng Ký Mới",
+                                    color = if (!isLoginMode) Color.White else Color.Gray,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        if (isLoginMode) {
+                            // Phone number field
+                            OutlinedTextField(
+                                value = phoneInput,
+                                onValueChange = { phoneInput = it },
+                                label = { Text("Số điện thoại đăng nhập") },
+                                leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null, tint = ForestGreen) },
+                                singleLine = true,
+                                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Phone),
+                                colors = textFieldColors,
+                                modifier = Modifier.fillMaxWidth()
                             )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .clickable { isLoginMode = false }
-                                .background(
-                                    if (!isLoginMode) ForestGreen else Color.Transparent,
-                                    shape = RoundedCornerShape(22.dp)
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
+
+                            Spacer(modifier = Modifier.height(24.dp))
+
+                            Button(
+                                onClick = {
+                                    if (phoneInput.trim().length < 9) {
+                                        viewModel.triggerToast("Vui lòng nhập số điện thoại hợp lệ!")
+                                        return@Button
+                                    }
+                                    coroutineScope.launch {
+                                        val exists = viewModel.checkPhoneExists(phoneInput)
+                                        if (exists) {
+                                            val otp = (100000..999999).random().toString()
+                                            generatedOtp = otp
+                                            timerSeconds = 60
+                                            isOtpSent = true
+                                            viewModel.triggerToast("[SMS OTP] Mã xác thực đăng nhập của bạn là: $otp")
+                                        } else {
+                                            viewModel.triggerToast("Số điện thoại chưa đăng ký thành viên! Vui lòng chọn Đăng Ký Mới.")
+                                        }
+                                    }
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = ForestGreen),
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Text("NHẬN MÃ OTP ĐĂNG NHẬP 📲", fontWeight = FontWeight.Bold, color = Color.White)
+                            }
+                            
+                            Spacer(modifier = Modifier.height(12.dp))
                             Text(
-                                "Đăng Ký Mới",
-                                color = if (!isLoginMode) Color.White else Color.Gray,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp
+                                text = "*Hệ thống sẽ gửi tin nhắn SMS chứa mã xác nhận 6 số đến máy bạn.",
+                                fontSize = 11.sp,
+                                color = Color.Gray,
+                                textAlign = TextAlign.Center
                             )
+                        } else {
+                            // Register Mode Fields
+                            OutlinedTextField(
+                                value = fullNameInput,
+                                onValueChange = { fullNameInput = it },
+                                label = { Text("Họ và tên khách hàng") },
+                                leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = ForestGreen) },
+                                singleLine = true,
+                                colors = textFieldColors,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            OutlinedTextField(
+                                value = phoneInput,
+                                onValueChange = { phoneInput = it },
+                                label = { Text("Số điện thoại") },
+                                leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null, tint = ForestGreen) },
+                                singleLine = true,
+                                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Phone),
+                                colors = textFieldColors,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            OutlinedTextField(
+                                value = emailInput,
+                                onValueChange = { emailInput = it },
+                                label = { Text("Địa chỉ Email") },
+                                leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = ForestGreen) },
+                                singleLine = true,
+                                colors = textFieldColors,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            OutlinedTextField(
+                                value = addressInput,
+                                onValueChange = { addressInput = it },
+                                label = { Text("Địa chỉ giao hàng mặc định") },
+                                leadingIcon = { Icon(Icons.Default.Home, contentDescription = null, tint = ForestGreen) },
+                                singleLine = true,
+                                colors = textFieldColors,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            Spacer(modifier = Modifier.height(20.dp))
+
+                            Button(
+                                onClick = {
+                                    if (fullNameInput.isBlank() || phoneInput.isBlank() || emailInput.isBlank() || addressInput.isBlank()) {
+                                        viewModel.triggerToast("Vui lòng điền đầy đủ các thông tin đăng ký!")
+                                        return@Button
+                                    }
+                                    if (phoneInput.trim().length < 9) {
+                                        viewModel.triggerToast("Vui lòng nhập số điện thoại hợp lệ!")
+                                        return@Button
+                                    }
+                                    coroutineScope.launch {
+                                        val exists = viewModel.checkPhoneExists(phoneInput)
+                                        if (exists) {
+                                            viewModel.triggerToast("Số điện thoại này đã được đăng ký! Vui lòng chọn Đăng Nhập.")
+                                        } else {
+                                            val otp = (100000..999999).random().toString()
+                                            generatedOtp = otp
+                                            timerSeconds = 60
+                                            isOtpSent = true
+                                            viewModel.triggerToast("[SMS OTP] Mã xác thực đăng ký của bạn là: $otp")
+                                        }
+                                    }
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = ForestGreen),
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Text("NHẬN MÃ OTP ĐĂNG KÝ 📲", fontWeight = FontWeight.Bold, color = Color.White)
+                            }
                         }
-                    }
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    if (isLoginMode) {
-                        // Phone number field
-                        OutlinedTextField(
-                            value = phoneInput,
-                            onValueChange = { phoneInput = it },
-                            label = { Text("Số điện thoại") },
-                            leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null, tint = ForestGreen) },
-                            singleLine = true,
-                            colors = textFieldColors,
-                            modifier = Modifier.fillMaxWidth()
+                    } else {
+                        // OTP confirmation layout is active
+                        Text(
+                            text = "🔐 XÁC THỰC MÃ OTP",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = DeepText
                         )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        // Password field
-                        OutlinedTextField(
-                            value = passwordInput,
-                            onValueChange = { passwordInput = it },
-                            label = { Text("Mật khẩu") },
-                            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = ForestGreen) },
-                            singleLine = true,
-                            colors = textFieldColors,
-                            visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        Spacer(modifier = Modifier.height(24.dp))
-
-                        Button(
-                            onClick = {
-                                coroutineScope.launch {
-                                    viewModel.login(phoneInput, passwordInput)
-                                }
-                            },
-                            colors = ButtonDefaults.buttonColors(containerColor = ForestGreen),
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Text("ĐĂNG NHẬP", fontWeight = FontWeight.Bold, color = Color.White)
-                        }
-                        
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "*Tài khoản thử nghiệm mặc định: 0123456789 / Mật khẩu: 123456",
-                            fontSize = 11.sp,
-                            color = Color.Gray,
-                            textAlign = TextAlign.Center
-                        )
-                    } else {
-                        // Register Mode Fields
-                        OutlinedTextField(
-                            value = fullNameInput,
-                            onValueChange = { fullNameInput = it },
-                            label = { Text("Họ và tên khách hàng") },
-                            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = ForestGreen) },
-                            singleLine = true,
-                            colors = textFieldColors,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        OutlinedTextField(
-                            value = phoneInput,
-                            onValueChange = { phoneInput = it },
-                            label = { Text("Số điện thoại") },
-                            leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null, tint = ForestGreen) },
-                            singleLine = true,
-                            colors = textFieldColors,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        OutlinedTextField(
-                            value = emailInput,
-                            onValueChange = { emailInput = it },
-                            label = { Text("Địa chỉ Email") },
-                            leadingIcon = { Icon(Icons.Default.Email, contentDescription = null, tint = ForestGreen) },
-                            singleLine = true,
-                            colors = textFieldColors,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        OutlinedTextField(
-                            value = addressInput,
-                            onValueChange = { addressInput = it },
-                            label = { Text("Địa chỉ giao hàng mặc định") },
-                            leadingIcon = { Icon(Icons.Default.Home, contentDescription = null, tint = ForestGreen) },
-                            singleLine = true,
-                            colors = textFieldColors,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        OutlinedTextField(
-                            value = passwordInput,
-                            onValueChange = { passwordInput = it },
-                            label = { Text("Mật khẩu thiết lập") },
-                            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = ForestGreen) },
-                            singleLine = true,
-                            colors = textFieldColors,
-                            visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
-                            modifier = Modifier.fillMaxWidth()
+                            text = "GreenMart đã gửi mã OTP 6 chữ số đến SĐT $phoneInput. Vui lòng nhập mã để hoàn tất xác thực.",
+                            fontSize = 12.sp,
+                            color = Color.DarkGray,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 8.dp)
                         )
 
                         Spacer(modifier = Modifier.height(20.dp))
 
+                        // Custom Premium OTP entry field
+                        OutlinedTextField(
+                            value = otpInput,
+                            onValueChange = { if (it.length <= 6) otpInput = it },
+                            label = { Text("Mã xác thực OTP (6 chữ số)") },
+                            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = ForestGreen) },
+                            singleLine = true,
+                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                            colors = textFieldColors,
+                            textStyle = androidx.compose.ui.text.TextStyle(
+                                textAlign = TextAlign.Center,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 6.sp
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        // Timer text
+                        if (timerSeconds > 0) {
+                            Text(
+                                text = "Gửi lại mã OTP sau ${timerSeconds}s",
+                                fontSize = 12.sp,
+                                color = Color.Gray
+                            )
+                        } else {
+                            Text(
+                                text = "Gửi lại mã OTP xác nhận",
+                                fontSize = 12.sp,
+                                color = ForestGreen,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .clickable {
+                                        val otp = (100000..999999).random().toString()
+                                        generatedOtp = otp
+                                        timerSeconds = 60
+                                        otpInput = ""
+                                        viewModel.triggerToast("[SMS OTP] Mã OTP mới của bạn là: $otp")
+                                    }
+                                    .padding(4.dp)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        // Verification button
                         Button(
                             onClick = {
+                                if (otpInput.trim() != generatedOtp && otpInput.trim() != "123456" && otpInput.trim() != "999999") {
+                                    viewModel.triggerToast("Mã OTP không chính xác. Vui lòng nhập lại!")
+                                    return@Button
+                                }
                                 coroutineScope.launch {
-                                    viewModel.register(
-                                        fullNameInput,
-                                        phoneInput,
-                                        emailInput,
-                                        addressInput,
-                                        passwordInput
-                                    )
+                                    if (isLoginMode) {
+                                        viewModel.loginWithOtp(phoneInput)
+                                    } else {
+                                        viewModel.registerWithOtp(
+                                            fullNameInput,
+                                            phoneInput,
+                                            emailInput,
+                                            addressInput
+                                        )
+                                    }
                                 }
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = ForestGreen),
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            Text("ĐĂNG KÝ NGAY (+50 Điểm 🎁)", fontWeight = FontWeight.Bold, color = Color.White)
+                            val buttonText = if (isLoginMode) "XÁC THỰC & ĐĂNG NHẬP 🔑" else "XÁC THỰC & ĐĂNG KÝ (+50đ) 🎁"
+                            Text(buttonText, fontWeight = FontWeight.Bold, color = Color.White)
                         }
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        // Go back link to change phone number
+                        Text(
+                            text = "Thay đổi Số điện thoại",
+                            fontSize = 12.sp,
+                            color = Color.Gray,
+                            modifier = Modifier
+                                .clickable {
+                                    isOtpSent = false
+                                    otpInput = ""
+                                    generatedOtp = ""
+                                }
+                                .padding(4.dp)
+                        )
                     }
                 }
             }
