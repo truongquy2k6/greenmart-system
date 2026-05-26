@@ -143,7 +143,7 @@ object LongDateAdapter {
 
 // ---------------- RETROFIT CLIENT SINGLETON ----------------
 object RetrofitClient {
-    const val BASE_URL = "https://morale-tablet-freehand.ngrok-free.dev/" // Emulator loopback to host localhost:5070
+    const val BASE_URL = "https://greenmart-api.onrender.com/" // Host C# Web API on Render Cloud
 
     private val moshi = Moshi.Builder()
         .add(LongDateAdapter)
