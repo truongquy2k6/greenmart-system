@@ -497,9 +497,6 @@ fun MainAppScaffold() {
                     .padding(bottom = 16.dp, end = 16.dp),
                 contentAlignment = Alignment.BottomEnd
             ) {
-                val ForestGreen = Color(0xFF2E7D32)
-                val EmeraldGreen = Color(0xFF4CAF50)
-                
                 Box(
                     modifier = Modifier
                         .offset {
@@ -516,12 +513,7 @@ fun MainAppScaffold() {
                             }
                         }
                         .size(62.dp)
-                        .background(
-                            brush = Brush.verticalGradient(colors = listOf(ForestGreen, EmeraldGreen)),
-                            shape = CircleShape
-                        )
-                        .clickable { showChatBotDialog = true }
-                        .padding(10.dp),
+                        .clickable { showChatBotDialog = true },
                     contentAlignment = Alignment.Center
                 ) {
                     Image(

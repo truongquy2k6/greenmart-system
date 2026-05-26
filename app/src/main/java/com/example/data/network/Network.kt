@@ -109,11 +109,44 @@ interface GreenMartApiService {
     ): CauHinh
 }
 
+// Custom Moshi adapter to convert C# DateTime string or numbers into Kotlin Long millisecond timestamp
+object LongDateAdapter {
+    private val dateFormats = listOf(
+        java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", java.util.Locale.US),
+        java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.US),
+        java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+    ).onEach { it.timeZone = java.util.TimeZone.getTimeZone("UTC") }
+
+    @com.squareup.moshi.FromJson
+    fun fromJson(reader: com.squareup.moshi.JsonReader): Long {
+        if (reader.peek() == com.squareup.moshi.JsonReader.Token.NUMBER) {
+            return reader.nextLong()
+        }
+        val valueStr = reader.nextString()
+        if (valueStr.isBlank()) return 0L
+        valueStr.toLongOrNull()?.let { return it }
+        for (format in dateFormats) {
+            try {
+                return format.parse(valueStr)?.time ?: 0L
+            } catch (e: Exception) {
+                // Ignore and try next format
+            }
+        }
+        return 0L
+    }
+
+    @com.squareup.moshi.ToJson
+    fun toJson(value: Long): String {
+        return value.toString()
+    }
+}
+
 // ---------------- RETROFIT CLIENT SINGLETON ----------------
 object RetrofitClient {
     const val BASE_URL = "https://morale-tablet-freehand.ngrok-free.dev/" // Emulator loopback to host localhost:5070
 
     private val moshi = Moshi.Builder()
+        .add(LongDateAdapter)
         .addLast(KotlinJsonAdapterFactory())
         .build()
 

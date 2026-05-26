@@ -49,8 +49,12 @@ class GreenMartRepository(private val dao: GreenMartDao) {
     suspend fun getKhachHangByPhone(phone: String): KhachHang? {
         return try {
             val customer = RetrofitClient.apiService.getCustomerByPhone(phone)
-            dao.insertKhachHang(customer)
-            customer
+            val trimmedCustomer = customer.copy(
+                MaKH = customer.MaKH.trim(),
+                SoDienThoai = if (customer.SoDienThoai.isBlank()) phone.trim() else customer.SoDienThoai.trim()
+            )
+            dao.insertKhachHang(trimmedCustomer)
+            trimmedCustomer
         } catch (e: Exception) {
             e.printStackTrace()
             // Fallback to local Room database if API fails or offline

@@ -27,12 +27,12 @@ data class SanPham(
 data class KhachHang(
     @PrimaryKey val MaKH: String,
     val HoTen: String,
-    val SoDienThoai: String,
-    val DiaChi: String,
-    val Email: String,
-    val DiemTichLuy: Int,
-    val NgayTao: Long,
-    val TrangThai: String,
+    val SoDienThoai: String = "",
+    val DiaChi: String = "",
+    val Email: String = "",
+    val DiemTichLuy: Int = 0,
+    val NgayTao: Long = 0L,
+    val TrangThai: String = "Hoạt động",
     val MatKhau: String = "123456"
 )
 

@@ -14,9 +14,16 @@ class GreenMartViewModel(application: Application) : AndroidViewModel(applicatio
     private val database = AppDatabase.getDatabase(application, viewModelScope)
     private val repository = GreenMartRepository(database.greenMartDao())
 
-    private val _currentMaKH = MutableStateFlow<String>("")
+    private val sharedPrefs = application.getSharedPreferences("greenmart_prefs", android.content.Context.MODE_PRIVATE)
+
+    private val _currentMaKH = MutableStateFlow<String>(sharedPrefs.getString("logged_ma_kh", "") ?: "")
     val currentMaKH: StateFlow<String> = _currentMaKH.asStateFlow()
     val maKH: String get() = _currentMaKH.value
+
+    private fun saveSession(maKH: String) {
+        _currentMaKH.value = maKH
+        sharedPrefs.edit().putString("logged_ma_kh", maKH).apply()
+    }
 
     // --- State Streams ---
     val customerState: StateFlow<KhachHang?> = _currentMaKH
@@ -381,7 +388,7 @@ class GreenMartViewModel(application: Application) : AndroidViewModel(applicatio
     suspend fun loginWithOtp(phoneNumber: String): Boolean {
         val user = repository.getKhachHangByPhone(phoneNumber.trim())
         if (user != null) {
-            _currentMaKH.value = user.MaKH
+            saveSession(user.MaKH)
             triggerToast("Đăng nhập thành công! Chào mừng ${user.HoTen}.")
             return true
         } else {
@@ -409,7 +416,7 @@ class GreenMartViewModel(application: Application) : AndroidViewModel(applicatio
         
         val generatedMaKH = repository.registerCustomer(newCustomer)
         if (generatedMaKH != null) {
-            _currentMaKH.value = generatedMaKH
+            saveSession(generatedMaKH)
             triggerToast("Đăng ký thành công! Nhận quà tặng 50 điểm tích lũy mới.")
             return true
         } else {
@@ -436,6 +443,7 @@ class GreenMartViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun logout() {
         _currentMaKH.value = ""
+        sharedPrefs.edit().remove("logged_ma_kh").apply()
         clearCart()
         triggerToast("Đã đăng xuất tài khoản.")
     }

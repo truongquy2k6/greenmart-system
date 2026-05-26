@@ -88,6 +88,7 @@ fun ProfileScreen(
             }
         }
 
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -99,80 +100,6 @@ fun ProfileScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Simulated SMS Message Notification Banner
-            if (activeSmsMessage != null) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
-                        .animateContentSize(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)), // Dark slate theme
-                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(36.dp)
-                                .background(ForestGreen, shape = RoundedCornerShape(18.dp)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Send,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
-                        
-                        Spacer(modifier = Modifier.width(12.dp))
-                        
-                        Column(modifier = Modifier.weight(1f)) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    text = "💬 TIN NHẮN SMS (GIẢ LẬP)",
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = ForestGreen
-                                )
-                                Text(
-                                    text = "Vừa xong",
-                                    fontSize = 10.sp,
-                                    color = Color.LightGray
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = activeSmsMessage ?: "",
-                                fontSize = 13.sp,
-                                color = Color.White,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
-                        
-                        Spacer(modifier = Modifier.width(8.dp))
-                        
-                        IconButton(
-                            onClick = { activeSmsMessage = null },
-                            modifier = Modifier.size(24.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Close",
-                                tint = Color.LightGray,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                    }
-                }
-            }
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -581,6 +508,109 @@ fun ProfileScreen(
                 }
             }
         }
+
+        // Heads-up drop-down notification overlay
+        androidx.compose.animation.AnimatedVisibility(
+            visible = activeSmsMessage != null,
+            enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.slideInVertically(
+                initialOffsetY = { -it }
+            ),
+            exit = androidx.compose.animation.fadeOut() + androidx.compose.animation.slideOutVertically(
+                targetOffsetY = { -it }
+            ),
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .statusBarsPadding()
+                .padding(horizontal = 14.dp, vertical = 10.dp)
+        ) {
+            val context = androidx.compose.ui.platform.LocalContext.current
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        // Automatically copy OTP to clipboard if clicked!
+                        activeSmsMessage?.let { msg ->
+                            val otp = msg.filter { it.isDigit() }
+                            if (otp.length == 6) {
+                                val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager
+                                val clip = android.content.ClipData.newPlainText("OTP", otp)
+                                clipboard?.setPrimaryClip(clip)
+                                viewModel.triggerToast("Đã tự động sao chép mã OTP: $otp")
+                            }
+                        }
+                    },
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE2E8F0))
+            ) {
+                Row(
+                    modifier = Modifier.padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(42.dp)
+                            .background(Color(0xFF3B82F6), shape = CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Sms,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.width(12.dp))
+                    
+                    Column(modifier = Modifier.weight(1f)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "Tin nhắn • GreenMart OTP",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF1E293B)
+                            )
+                            Text(
+                                text = "bây giờ",
+                                fontSize = 10.sp,
+                                color = Color.Gray
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = activeSmsMessage ?: "",
+                            fontSize = 11.5.sp,
+                            color = Color(0xFF475569),
+                            lineHeight = 16.sp
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.width(10.dp))
+                    
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .background(Color(0xFFF1F5F9), shape = CircleShape)
+                            .clickable { activeSmsMessage = null },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Close",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
         return
     }
 
