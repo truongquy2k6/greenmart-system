@@ -405,7 +405,7 @@ fun ProfileScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp)
                             ) {
-                                Text("NHẬN MÃ OTP ĐĂNG KÝ 📲", fontWeight = FontWeight.Bold, color = Color.White)
+                                Text("NHẬN MÃ OTP ĐĂNG KÝ", fontWeight = FontWeight.Bold, color = Color.White)
                             }
                         }
                     } else {

@@ -34,6 +34,10 @@ import com.example.viewmodel.GreenMartViewModel
 import com.example.viewmodel.UiEvent
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.delay
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.IntOffset
+import kotlin.math.roundToInt
 
 data class AppNotification(
     val id: String,
@@ -93,6 +97,9 @@ fun MainAppScaffold() {
     // State for AI Chatbot Dialog
     var showChatBotDialog by remember { mutableStateOf(false) }
     var showNotificationsDialog by remember { mutableStateOf(false) }
+
+    var aiButtonOffsetX by remember { mutableStateOf(0f) }
+    var aiButtonOffsetY by remember { mutableStateOf(0f) }
 
     // Splash screen state
     var showSplashScreen by remember { mutableStateOf(true) }
@@ -369,32 +376,6 @@ fun MainAppScaffold() {
                     )
                 )
             }
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showChatBotDialog = true },
-                containerColor = ForestGreen,
-                contentColor = Color.White,
-                shape = RoundedCornerShape(24.dp),
-                modifier = Modifier.padding(bottom = 12.dp)
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Chat,
-                        contentDescription = "Chat AI",
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "Hỏi AI",
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
         }
     ) { innerPadding ->
         Box(
@@ -506,6 +487,48 @@ fun MainAppScaffold() {
                             )
                         }
                     }
+                }
+            }
+
+            // Draggable Floating AI Assistant Button overlay
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 16.dp, end = 16.dp),
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                val ForestGreen = Color(0xFF2E7D32)
+                val EmeraldGreen = Color(0xFF4CAF50)
+                
+                Box(
+                    modifier = Modifier
+                        .offset {
+                            IntOffset(
+                                aiButtonOffsetX.roundToInt(),
+                                aiButtonOffsetY.roundToInt()
+                            )
+                        }
+                        .pointerInput(Unit) {
+                            detectDragGestures { change, dragAmount ->
+                                change.consume()
+                                aiButtonOffsetX += dragAmount.x
+                                aiButtonOffsetY += dragAmount.y
+                            }
+                        }
+                        .size(62.dp)
+                        .background(
+                            brush = Brush.verticalGradient(colors = listOf(ForestGreen, EmeraldGreen)),
+                            shape = CircleShape
+                        )
+                        .clickable { showChatBotDialog = true }
+                        .padding(10.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.aisongkhoe),
+                        contentDescription = "AI Song Khoe",
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
         }

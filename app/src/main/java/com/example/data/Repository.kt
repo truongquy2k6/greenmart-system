@@ -163,17 +163,18 @@ class GreenMartRepository(private val dao: GreenMartDao) {
         itemsInCart: List<Pair<SanPham, Int>>,
         pointsEarned: Int
     ): Pair<Boolean, String> {
-        return try {
-            // 1. Prepare invoice details API request
-            val details = itemsInCart.map { (product, quantity) ->
-                ApiInvoiceDetailRequest(
-                    MaSP = product.MaSP,
-                    SoLuong = quantity,
-                    DonGia = product.DonGia
-                )
-            }
-            
-            // 2. Post to API
+        val details = itemsInCart.map { (product, quantity) ->
+            ApiInvoiceDetailRequest(
+                MaSP = product.MaSP,
+                SoLuong = quantity,
+                DonGia = product.DonGia
+            )
+        }
+
+        var maHD = ""
+        var isApiSuccess = false
+
+        try {
             val orderResponse = RetrofitClient.apiService.placeOrder(
                 ApiCreateInvoiceRequest(
                     MaKH = maKH,
@@ -184,11 +185,16 @@ class GreenMartRepository(private val dao: GreenMartDao) {
                     ChiTiet = details
                 )
             )
-            
-            val maHD = orderResponse.maHD
-            val timestamp = System.currentTimeMillis()
+            maHD = orderResponse.maHD
+            isApiSuccess = true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            maHD = "HD" + (10000..99999).random().toString()
+        }
 
-            // 3. Cache the invoice locally in SQLite Room DB
+        val timestamp = System.currentTimeMillis()
+
+        try {
             val newInvoice = HoaDon(
                 MaHD = maHD,
                 NgayLap = timestamp,
@@ -213,27 +219,48 @@ class GreenMartRepository(private val dao: GreenMartDao) {
             }
             dao.insertAllChiTietHoaDon(localDetails)
 
-            // 4. Mark Voucher as Used if applied
             if (maKM != null) {
                 dao.markVoucherAsUsed(maKH, maKM)
             }
 
-            // 5. Sync updated customer points from remote database
-            try {
-                val updatedCustomer = RetrofitClient.apiService.getCustomerByPhone(dao.getKhachHang(maKH)?.SoDienThoai ?: "")
-                dao.insertKhachHang(updatedCustomer)
-            } catch (e: Exception) {
+            if (isApiSuccess) {
+                try {
+                    val updatedCustomer = RetrofitClient.apiService.getCustomerByPhone(dao.getKhachHang(maKH)?.SoDienThoai ?: "")
+                    dao.insertKhachHang(updatedCustomer)
+                } catch (e: Exception) {
+                    val customer = dao.getKhachHang(maKH)
+                    if (customer != null) {
+                        val updatedPoints = customer.DiemTichLuy + pointsEarned
+                        dao.updateKhachHang(customer.copy(DiemTichLuy = updatedPoints))
+                    }
+                }
+            } else {
                 val customer = dao.getKhachHang(maKH)
                 if (customer != null) {
                     val updatedPoints = customer.DiemTichLuy + pointsEarned
                     dao.updateKhachHang(customer.copy(DiemTichLuy = updatedPoints))
+                    try {
+                        RetrofitClient.apiService.updateCustomer(
+                            ApiUpdateRequest(
+                                MaKH = customer.MaKH,
+                                HoTen = customer.HoTen,
+                                SoDienThoai = customer.SoDienThoai,
+                                DiaChi = customer.DiaChi,
+                                Email = customer.Email,
+                                DiemTichLuy = updatedPoints,
+                                TrangThai = customer.TrangThai
+                            )
+                        )
+                    } catch (ex: Exception) {
+                        ex.printStackTrace()
+                    }
                 }
             }
 
-            Pair(true, maHD)
+            return Pair(true, maHD)
         } catch (e: Exception) {
             e.printStackTrace()
-            Pair(false, "")
+            return Pair(false, "")
         }
     }
 
