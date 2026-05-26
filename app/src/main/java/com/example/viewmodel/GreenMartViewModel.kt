@@ -168,8 +168,11 @@ class GreenMartViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun addToCart(maSP: String) {
+        // Đồng bộ khoảng trắng đệm char(10) của SQL Server: tìm mã sản phẩm chuẩn tương thích
+        val matchedProduct = allProductsStore.value.find { it.MaSP.trim() == maSP.trim() }
+        val exactMaSP = matchedProduct?.MaSP ?: maSP
         val currentMap = _cartItems.value.toMutableMap()
-        currentMap[maSP] = (currentMap[maSP] ?: 0) + 1
+        currentMap[exactMaSP] = (currentMap[exactMaSP] ?: 0) + 1
         _cartItems.value = currentMap
     }
 
