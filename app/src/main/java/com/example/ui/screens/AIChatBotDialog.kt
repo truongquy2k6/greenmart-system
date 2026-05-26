@@ -32,6 +32,14 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.viewmodel.GreenMartViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.OkHttpClient
 
 // Color constants prefixed specifically to avoid package name conflicts
 private val ChatBotForestGreen = Color(0xFF2E7D32)
@@ -73,56 +81,96 @@ fun AIChatBotDialog(
 
     var inputText by remember { mutableStateOf("") }
     var isTyping by remember { mutableStateOf(false) }
+    var requestTimestamps by remember { mutableStateOf(listOf<Long>()) }
 
     fun sendSystemResponse(userMsg: String) {
-        val lower = userMsg.lowercase()
+        val now = System.currentTimeMillis()
+        val recentRequests = requestTimestamps.filter { now - it < 60000 }
+
+        if (recentRequests.size >= 15) {
+            val alertMsg = ChatMessage(
+                id = System.currentTimeMillis().toString(),
+                sender = "AI",
+                message = "⚠️ **CẢNH BÁO GIỚI HẠN YÊU CẦU:**\nHệ thống AI của GreenMart hiện tại đang giới hạn tối đa **15 câu hỏi mỗi phút** đối với gói miễn phí để tránh quá tải API.\n\nVui lòng đợi một lát rồi đặt câu hỏi tiếp theo nhé! Cảm ơn sự hợp tác của bạn! ⏰"
+            )
+            messages = messages + alertMsg
+            coroutineScope.launch {
+                delay(100)
+                listState.animateScrollToItem(messages.size - 1)
+            }
+            return
+        }
+
+        requestTimestamps = recentRequests + now
+
         coroutineScope.launch {
             isTyping = true
-            delay(1200) // Simulated smart AI thinking delay
 
-            val aiResponse = when {
-                lower.contains("salad") || lower.contains("giảm cân") || lower.contains("ăn kiêng") -> {
-                    ChatMessage(
-                        id = System.currentTimeMillis().toString(),
-                        sender = "AI",
-                        message = "Món Salad giảm cân cao cấp là lựa chọn tuyệt vời! Salad ba chỉ hoặc ức gà bơ sáp xà lách mỡ mọng nước sẽ đem lại 100% năng lượng organic và vitamin lành mạnh cho bạn:\n\n• Xà Lách Mỡ Đà Lạt Mỹ (25.000đ)\n• Cà Chua Bi Cherry Đỏ (45.000đ)\n• Bơ Sáp Đắk Lắk Loại 1 (55.000đ)\n• Ức Gà Thảo Dược Phi Lê (75.000đ)\n\nTổng cộng chỉ 200.000đ cho 1 bữa ăn tràn đầy sức sống. Bạn muốn tôi soạn tất cả nguyên liệu vào giỏ hàng ngay không?",
-                        recipeItems = listOf("SP001", "SP002", "SP005", "SP008"),
-                        recipeTitle = "Nguyên Liệu Salad Giảm Cân Cao Cấp"
-                    )
-                }
-                lower.contains("sáng") || lower.contains("bé") || lower.contains("sữa") -> {
-                    ChatMessage(
-                        id = System.currentTimeMillis().toString(),
-                        sender = "AI",
-                        message = "Bữa sáng tràn đầy năng lượng bổ dưỡng cho gia đình và bé yêu nhà bạn đã sẵn sàng:\n\n• Táo Fuji Hữu Cơ Nhập Khẩu (89.000đ)\n• Sữa Tươi Thanh Trùng DalatMilk (38.000đ)\n\nSản phẩm sữa tươi nguyên chất thanh trùng kết hợp cùng táo hữu cơ giòn ngọt giúp kích thích hệ tiêu hóa phát triển toàn diện tốt nhất!",
-                        recipeItems = listOf("SP004", "SP009"),
-                        recipeTitle = "Bữa Sáng Dinh Dưỡng Cho Bé"
-                    )
-                }
-                lower.contains("canh") || lower.contains("bông cải") || lower.contains("thịt") -> {
-                    ChatMessage(
-                        id = System.currentTimeMillis().toString(),
-                        sender = "AI",
-                        message = "Canh ba chỉ cuộn bông cải xanh VietGAP cực kì thanh mát, bồi bổ cơ thể giải nhiệt ngày nắng nóng:\n\n• Bông Cải Xanh VietGAP (35.000đ)\n• Thịt Ba Chỉ Heo Thảo Mộc (165.000đ)\n• Cà Chua Bi Cherry Đỏ (45.000đ)\n\nMón ăn thơm bùi béo ngậy từ thịt heo sạch thảo mộc cùng bông cải xanh giòn sần sật cực giàu chất chống oxy hóa!",
-                        recipeItems = listOf("SP003", "SP007", "SP002"),
-                        recipeTitle = "Canh Ba Chỉ Bông Cải VietGAP"
-                    )
-                }
-                lower.contains("vietgap") || lower.contains("sạch") || lower.contains("giới thiệu") -> {
-                    ChatMessage(
-                        id = System.currentTimeMillis().toString(),
-                        sender = "AI",
-                        message = "100% rau củ quả tại GreenMart đạt chuẩn VietGAP hoặc Organic Châu Âu. Chúng tôi liên kết trực tiếp với các nông trại công nghệ cao tại Đà Lạt và Đắk Lắk, kiểm nghiệm nồng độ thuốc bảo vệ thực vật nghiêm ngặt trước khi nhập kệ.\nGreenMart cam kết bảo hành 1 đổi 1 trong 24h nếu rau củ bị dập héo!"
-                    )
-                }
-                else -> {
-                    ChatMessage(
-                        id = System.currentTimeMillis().toString(),
-                        sender = "AI",
-                        message = "Cảm ơn bạn đã trò chuyện cùng GreenMart AI! Tôi khuyên bạn nên thử các món rau quả organic tươi mát VietGAP hôm nay để bảo vệ sức khỏe gia đình nhé. Hãy thử gõ 'salad giảm cân' hoặc 'canh bông cải' để tôi gợi ý công thức và soạn hàng giúp bạn nhanh nhất!"
-                    )
+            // Generate dynamic grounding database representations
+            val productsContext = viewModel.allProductsStore.value.joinToString("\n") {
+                "- ${it.TenSP} (Mã: ${it.MaSP}) - Giá: ${it.DonGia.toInt()}đ/${it.DonViTinh}. Mô tả: ${it.MoTa}"
+            }
+            val vouchersContext = viewModel.activeVouchers.value.joinToString("\n") {
+                "- ${it.TenKM} (Mã: ${it.MaKM}) - Giảm ${it.GiaTri.toInt()}${if (it.LoaiKM == "Giảm theo %") "%" else "đ"} cho đơn từ ${it.DieuKien.toInt()}đ."
+            }
+
+            val systemPrompt = """
+                Bạn là Trợ Lý Sức Khỏe AI thân thiện độc quyền của siêu thị GreenMart.
+                Nhiệm vụ của bạn là hỗ trợ khách hàng lên thực đơn, tư vấn dinh dưỡng và gợi ý món ăn sạch VietGAP.
+
+                RÀNG BUỘC CỰC KỲ NGHIÊM NGẶT:
+                1. Bạn CHỈ ĐƯỢC PHÉP gợi ý các sản phẩm và chương trình khuyến mãi thực tế đang có trong danh sách được cung cấp bên dưới. TUYỆT ĐỐI không tự bịa ra bất kỳ sản phẩm, giá bán, hoặc mã khuyến mãi nào khác!
+                2. Nếu người dùng hỏi mua hoặc hỏi nấu món gì không có nguyên liệu phù hợp trong danh sách của siêu thị, hãy lịch sự từ chối hoặc tư vấn họ sử dụng các sản phẩm thay thế hiện có.
+                3. Khi gợi ý các món ăn, hãy trình bày ngắn gọn công thức và liệt kê các nguyên liệu cần mua kèm theo Tên sản phẩm, Mã sản phẩm (MaSP) và Giá bán chính xác.
+                4. ĐẶC BIỆT: Ở cuối cùng câu trả lời, nếu có gợi ý nguyên liệu mua tại GreenMart, bạn BẮT BUỘC phải viết thêm một dòng chứa chuỗi định dạng JSON chính xác sau (Lưu ý viết đúng trên một dòng riêng biệt, không đặt trong markdown code block):
+                [RECIPE_JSON: {"title": "Tên món ăn gợi ý", "items": ["MaSP1", "MaSP2"]}]
+                Chuỗi JSON này vô cùng quan trọng để hệ thống hiển thị nút mua nhanh tự động.
+
+                Danh sách sản phẩm GreenMart hiện có:
+                $productsContext
+
+                Danh sách chương trình khuyến mãi đang áp dụng:
+                $vouchersContext
+            """.trimIndent()
+
+            val apiKey = "AIzaSyBk8TaLwGIv8csEukTnzIRyk7qVStQWvN8"
+
+            val rawResponse = callGeminiApi(apiKey, systemPrompt, messages)
+
+            // Extract and parse recipe JSON [RECIPE_JSON: ...] from response
+            val jsonRegex = Regex("\\[RECIPE_JSON:\\s*(\\{.*?\\})\\s*\\]")
+            val match = jsonRegex.find(rawResponse)
+
+            var recipeTitle: String? = null
+            var recipeItems: List<String>? = null
+            var cleanMessage = rawResponse
+
+            if (match != null) {
+                try {
+                    val jsonStr = match.groupValues[1]
+                    val recipeObj = JSONObject(jsonStr)
+                    recipeTitle = recipeObj.optString("title", null)
+                    val itemsArray = recipeObj.optJSONArray("items")
+                    if (itemsArray != null && itemsArray.length() > 0) {
+                        val list = mutableListOf<String>()
+                        for (i in 0 until itemsArray.length()) {
+                            list.add(itemsArray.getString(i))
+                        }
+                        recipeItems = list
+                    }
+                    cleanMessage = rawResponse.replace(match.value, "").trim()
+                } catch (e: Exception) {
+                    // Fallback
                 }
             }
+
+            val aiResponse = ChatMessage(
+                id = System.currentTimeMillis().toString(),
+                sender = "AI",
+                message = cleanMessage,
+                recipeItems = recipeItems,
+                recipeTitle = recipeTitle
+            )
 
             messages = messages + aiResponse
             isTyping = false
@@ -524,5 +572,78 @@ fun AIChatBotDialog(
                 }
             }
         }
+    }
+}
+
+suspend fun callGeminiApi(
+    apiKey: String,
+    systemPrompt: String,
+    chatHistory: List<ChatMessage>
+): String = withContext(Dispatchers.IO) {
+    try {
+        val client = OkHttpClient.Builder()
+            .connectTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+            .readTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+            .build()
+
+        val rootJson = JSONObject()
+
+        // System instruction JSON
+        val sysInstructionJson = JSONObject().put(
+            "parts",
+            JSONArray().put(JSONObject().put("text", systemPrompt))
+        )
+        rootJson.put("systemInstruction", sysInstructionJson)
+
+        // Contents JSON array representing the multi-turn conversational dialog history
+        val contentsArray = JSONArray()
+        chatHistory.forEach { msg ->
+            val role = if (msg.sender == "User") "user" else "model"
+            // Strip out custom recipe JSON blocks before sending to keep API context clean
+            val cleanText = msg.message.substringBefore("[RECIPE_JSON:").trim()
+            if (cleanText.isNotEmpty()) {
+                val partsArray = JSONArray().put(JSONObject().put("text", cleanText))
+                contentsArray.put(
+                    JSONObject()
+                        .put("role", role)
+                        .put("parts", partsArray)
+                )
+            }
+        }
+        rootJson.put("contents", contentsArray)
+
+        val mediaType = "application/json; charset=utf-8".toMediaType()
+        val requestBody = rootJson.toString().toRequestBody(mediaType)
+
+        val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$apiKey"
+
+        val request = Request.Builder()
+            .url(url)
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).execute().use { response ->
+            val bodyString = response.body?.string() ?: ""
+            if (response.isSuccessful) {
+                val responseJson = JSONObject(bodyString)
+                val candidates = responseJson.getJSONArray("candidates")
+                if (candidates.length() > 0) {
+                    val candidate = candidates.getJSONObject(0)
+                    val content = candidate.getJSONObject("content")
+                    val parts = content.getJSONArray("parts")
+                    if (parts.length() > 0) {
+                        return@withContext parts.getJSONObject(0).getString("text")
+                    }
+                }
+                return@withContext "Không nhận được phản hồi từ AI."
+            } else {
+                if (response.code == 429) {
+                    return@withContext "Bot đang nhận quá nhiều yêu cầu cùng lúc (vượt giới hạn API miễn phí). Vui lòng đợi khoảng 1 phút rồi thử lại nhé!"
+                }
+                return@withContext "Lỗi kết nối AI: ${response.code}\nChi tiết: $bodyString"
+            }
+        }
+    } catch (e: Exception) {
+        return@withContext "Không thể kết nối đến máy chủ AI: ${e.message}"
     }
 }
